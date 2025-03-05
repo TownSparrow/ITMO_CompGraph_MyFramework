@@ -10,17 +10,23 @@
 int main() {
   int screenWidth = 800;
   int screenHeight = 800;
+  LPCWSTR shaderPath = L"./Shaders/MainShader.hlsl";
 
   Game* game = Game::GetInstance();
 
+  // Game init
   game->Initialize(
     screenWidth,
-    screenHeight
+    screenHeight,
+    //L"./Shaders/MainShader.hlsl"
+    shaderPath
   );
 
   // Init of examples and tasks:
-  game->InitTwoSquaresExample();
+  //game->InitTwoSquaresExample(shaderPath);
+  game->InitPongGame(shaderPath);
 
+  // Let the game begin!
   game->Run();
 
   return 0;

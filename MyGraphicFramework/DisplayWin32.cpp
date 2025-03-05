@@ -15,6 +15,10 @@ LRESULT DisplayWin32::WndProc(
 		// If a key is pressed send it to the input object so it can record that state.
 		// std::cout << "Key value: " << static_cast<unsigned int>(wparam) << std::endl;
 
+		//if (game->isPong) {
+		//	if (wparam < 256) PongGame::GetInstance()->keys[wparam] = true;
+		//}
+
 		if (static_cast<unsigned int>(wparam) == 27) {
 		// But in future it could be like this:
 		// if (game->inputDevice->IsKeyDown(Keys::Escape))
@@ -22,6 +26,13 @@ LRESULT DisplayWin32::WndProc(
 			return 0;
 		}
 		break;
+	}
+
+	case WM_KEYUP:
+	{
+		//if (game->isPong) {
+		//	if (wparam < 256) PongGame::GetInstance()->keys[wparam] = false;
+		//}
 	}
 
 	case WM_INPUT: {

@@ -20,7 +20,10 @@
 #include "InputDevice.h"
 #include "GameComponent.h"
 #include "DisplayWin32.h"
+
+// Include new tasks h-files:
 #include "PlayerControlComponent.h"
+#include "PongGame.h"
 
 class DisplayWin32;
 
@@ -60,7 +63,11 @@ public:
 		return instance;
 	}
 
-	void Initialize(int screenWidthInput, int screenHeightInput);
+	void Initialize(
+		int screenWidthInput,
+		int screenHeightInput,
+		LPCWSTR shaderPath
+	);
 	void CreateBackBuffer();
 	void Draw();
 	void Update();
@@ -71,6 +78,11 @@ public:
 	void MessageHandler();
 	void Run();
 
-	// Additional methods
-	void InitTwoSquaresExample();
+	// --- Additional methods --- //
+	// Task 1
+	void InitTwoSquaresExample(LPCWSTR shaderPath);
+	
+	// Pong
+	bool isPong = false;
+	void InitPongGame(LPCWSTR shaderPath);
 };

@@ -8,7 +8,9 @@ Game* Game::instance = nullptr;
 // --- Init --- //
 void Game::Initialize(
 	int screenWidthInput,
-	int screenHeightInput) {
+	int screenHeightInput,
+	LPCWSTR shaderPath
+) {
 	
 	// --- Init: Window --- //
 	screenWidth = screenWidthInput;
@@ -78,7 +80,7 @@ void Game::Initialize(
 	//	false,
 	//	{ DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }
 	//);
-	//circle->Initialize(L"./Shaders/MainShader.hlsl", circleMeshBackground.points, circleMeshBackground.indexes, stridesCircle, offsetsCircle);
+	//circle->Initialize(shaderPath, circleMeshBackground.points, circleMeshBackground.indexes, stridesCircle, offsetsCircle);
 	//Game::GetInstance()->components.push_back(circle);
 }
 
@@ -109,6 +111,19 @@ void Game::Update() {
 	//float aspectRatio = static_cast<float>(screenWidth) / static_cast<float>(screenHeight);
 	//float orthoHeight = 2.0f;
 	//float orthoWidth = orthoHeight * aspectRatio;
+	if (isPong) {
+		PongGame* pongGame = PongGame::GetInstance();
+		pongGame->Update();
+		//if (pongGame->netUpdateTime > 0.5f) {
+		//	for (int i = 0; i < components.size() - 3; i++) {
+		//		if (i == pongGame->netCount) components[i]->constData.color = Vector4(0.5f, 0.5f, 0.5f, 0.0f);
+		//		else components[i]->constData.color = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+		//	}
+		//	pongGame->netCount += 1;
+		//	if (pongGame->netCount == 9) pongGame->netCount = 0;
+		//	pongGame->netUpdateTime = 0.0f;
+		//};
+	};
 
 	// Update every game component
 	for (GameComponent* component : components) {
@@ -185,6 +200,9 @@ void Game::UpdateInterval() {
 		frameCount = 0;
 	}
 
+	// Check for pong
+	if (isPong) PongGame::GetInstance()->UpdateInterval(deltaTime);
+
 	// Important order of render stages!
 	PrepareFrame();
 	Update();
@@ -223,7 +241,7 @@ void Game::Run() {
 // --- EXAMPLE --- //
 // Make 2 squares
 // Make control for them: WASD and arrows
-void Game::InitTwoSquaresExample() {
+void Game::InitTwoSquaresExample(LPCWSTR shaderPath) {
 	// example mesh with control 1
 	std::vector<UINT> stridesPlayable1 = { 32 };
 	std::vector<UINT> offsetsPlayable1 = { 0 };
@@ -235,7 +253,7 @@ void Game::InitTwoSquaresExample() {
 		false,
 		{ DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }
 	);
-	squarePlayable1->Initialize(L"./Shaders/MainShader.hlsl", squareMeshPlayable1.points, squareMeshPlayable1.indexes, stridesPlayable1, offsetsPlayable1);
+	squarePlayable1->Initialize(shaderPath, squareMeshPlayable1.points, squareMeshPlayable1.indexes, stridesPlayable1, offsetsPlayable1);
 	squarePlayable1->transforms.scale = Matrix::CreateScale(0.5f, 0.5f, 0.05f);
 	PlayerControlComponent* controlPlayable1 = new PlayerControlComponent(Game::GetInstance(), squarePlayable1, 0);
 
@@ -250,7 +268,7 @@ void Game::InitTwoSquaresExample() {
 		false,
 		{ DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) }
 	);
-	squarePlayable2->Initialize(L"./Shaders/MainShader.hlsl", squareMeshPlayable2.points, squareMeshPlayable2.indexes, stridesPlayable2, offsetsPlayable2);
+	squarePlayable2->Initialize(shaderPath, squareMeshPlayable2.points, squareMeshPlayable2.indexes, stridesPlayable2, offsetsPlayable2);
 	squarePlayable2->transforms.scale = Matrix::CreateScale(0.5f, 0.5f, 0.05f);
 	PlayerControlComponent* controlPlayable2 = new PlayerControlComponent(Game::GetInstance(), squarePlayable2, 1);
 
@@ -258,4 +276,12 @@ void Game::InitTwoSquaresExample() {
 	Game::GetInstance()->components.push_back(controlPlayable1);
 	Game::GetInstance()->components.push_back(squarePlayable2);
 	Game::GetInstance()->components.push_back(controlPlayable2);
+}
+
+// Make pong game
+void Game::InitPongGame(LPCWSTR shaderPath) {
+	isPong = true;
+	
+	PongGame* pongGame = PongGame::GetInstance();
+	pongGame->Initialize(shaderPath);
 }

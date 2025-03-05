@@ -51,7 +51,7 @@ public:
 	void Initialize(
 		LPCWSTR shaderSource,
 		std::vector<DirectX::XMFLOAT4> pointsInput,
-		std::vector<int> indecesInput,
+		std::vector<int> indexesInput,
 		std::vector<UINT> stridesInput,
 		std::vector<UINT> offsetsInput
 	);

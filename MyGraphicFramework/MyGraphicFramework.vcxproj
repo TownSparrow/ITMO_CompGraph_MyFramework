@@ -136,6 +136,7 @@
     <ClInclude Include="Keys.h" />
     <ClInclude Include="MeshCreator.h" />
     <ClInclude Include="PlayerControlComponent.h" />
+    <ClInclude Include="PongGame.h" />
     <ClInclude Include="TriangleComponent.h" />
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +148,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshCreator.cpp" />
     <ClCompile Include="PlayerControlComponent.cpp" />
+    <ClCompile Include="PongGame.cpp" />
     <ClCompile Include="TriangleComponent.cpp" />
   </ItemGroup>
   <ItemGroup>
