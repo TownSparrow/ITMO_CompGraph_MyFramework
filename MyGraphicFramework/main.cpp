@@ -17,6 +17,10 @@ int main() {
     screenWidth,
     screenHeight
   );
+
+  // Init of examples and tasks:
+  game->InitTwoSquaresExample();
+
   game->Run();
 
   return 0;

@@ -70,4 +70,7 @@ public:
 	void UpdateInterval();
 	void MessageHandler();
 	void Run();
+
+	// Additional methods
+	void InitTwoSquaresExample();
 };

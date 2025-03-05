@@ -80,41 +80,6 @@ void Game::Initialize(
 	//);
 	//circle->Initialize(L"./Shaders/MainShader.hlsl", circleMeshBackground.points, circleMeshBackground.indexes, stridesCircle, offsetsCircle);
 	//Game::GetInstance()->components.push_back(circle);
-	
-	// example mesh with control 1
-	std::vector<UINT> stridesPlayable1 = { 32 };
-	std::vector<UINT> offsetsPlayable1 = { 0 };
-	TriangleComponent* squarePlayable1 = new TriangleComponent(Game::GetInstance());
-	Mesh squareMeshPlayable1 = MeshCreator::GetInstance()->Square(
-		DirectX::XMFLOAT2(-0.5f, 0.0f),
-		0.5f,
-		0.5f,
-		false,
-		{ DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }
-	);
-	squarePlayable1->Initialize(L"./Shaders/MainShader.hlsl", squareMeshPlayable1.points, squareMeshPlayable1.indexes, stridesPlayable1, offsetsPlayable1);
-	squarePlayable1->transforms.scale = Matrix::CreateScale(0.5f, 0.5f, 0.05f);
-	PlayerControlComponent* controlPlayable1 = new PlayerControlComponent(Game::GetInstance(), squarePlayable1, 0);
-
-	// example mesh with control 2
-	std::vector<UINT> stridesPlayable2 = { 32 };
-	std::vector<UINT> offsetsPlayable2 = { 0 };
-	TriangleComponent* squarePlayable2 = new TriangleComponent(Game::GetInstance());
-	Mesh squareMeshPlayable2 = MeshCreator::GetInstance()->Square(
-		DirectX::XMFLOAT2(0.5f, 0.0f),
-		0.3f,
-		0.3f,
-		false,
-		{ DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) }
-	);
-	squarePlayable2->Initialize(L"./Shaders/MainShader.hlsl", squareMeshPlayable2.points, squareMeshPlayable2.indexes, stridesPlayable2, offsetsPlayable2);
-	squarePlayable2->transforms.scale = Matrix::CreateScale(0.5f, 0.5f, 0.05f);
-	PlayerControlComponent* controlPlayable2 = new PlayerControlComponent(Game::GetInstance(), squarePlayable2, 1);
-
-	Game::GetInstance()->components.push_back(squarePlayable1);
-	Game::GetInstance()->components.push_back(controlPlayable1);
-	Game::GetInstance()->components.push_back(squarePlayable2);
-	Game::GetInstance()->components.push_back(controlPlayable2);
 }
 
 // --- Create Back Buffer --- //
@@ -253,4 +218,44 @@ void Game::Run() {
 		UpdateInterval();
 	}
 	Exit();
+}
+
+// --- EXAMPLE --- //
+// Make 2 squares
+// Make control for them: WASD and arrows
+void Game::InitTwoSquaresExample() {
+	// example mesh with control 1
+	std::vector<UINT> stridesPlayable1 = { 32 };
+	std::vector<UINT> offsetsPlayable1 = { 0 };
+	TriangleComponent* squarePlayable1 = new TriangleComponent(Game::GetInstance());
+	Mesh squareMeshPlayable1 = MeshCreator::GetInstance()->Square(
+		DirectX::XMFLOAT2(-0.5f, 0.0f),
+		0.5f,
+		0.5f,
+		false,
+		{ DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }
+	);
+	squarePlayable1->Initialize(L"./Shaders/MainShader.hlsl", squareMeshPlayable1.points, squareMeshPlayable1.indexes, stridesPlayable1, offsetsPlayable1);
+	squarePlayable1->transforms.scale = Matrix::CreateScale(0.5f, 0.5f, 0.05f);
+	PlayerControlComponent* controlPlayable1 = new PlayerControlComponent(Game::GetInstance(), squarePlayable1, 0);
+
+	// example mesh with control 2
+	std::vector<UINT> stridesPlayable2 = { 32 };
+	std::vector<UINT> offsetsPlayable2 = { 0 };
+	TriangleComponent* squarePlayable2 = new TriangleComponent(Game::GetInstance());
+	Mesh squareMeshPlayable2 = MeshCreator::GetInstance()->Square(
+		DirectX::XMFLOAT2(0.5f, 0.0f),
+		0.3f,
+		0.3f,
+		false,
+		{ DirectX::XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f) }
+	);
+	squarePlayable2->Initialize(L"./Shaders/MainShader.hlsl", squareMeshPlayable2.points, squareMeshPlayable2.indexes, stridesPlayable2, offsetsPlayable2);
+	squarePlayable2->transforms.scale = Matrix::CreateScale(0.5f, 0.5f, 0.05f);
+	PlayerControlComponent* controlPlayable2 = new PlayerControlComponent(Game::GetInstance(), squarePlayable2, 1);
+
+	Game::GetInstance()->components.push_back(squarePlayable1);
+	Game::GetInstance()->components.push_back(controlPlayable1);
+	Game::GetInstance()->components.push_back(squarePlayable2);
+	Game::GetInstance()->components.push_back(controlPlayable2);
 }
