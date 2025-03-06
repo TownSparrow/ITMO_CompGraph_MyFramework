@@ -311,6 +311,7 @@ void PongGame::CheckAllCollisions() {
   // Checking for goal of player 1
   if ((ballPongObject->collision.Intersects(player2SideCollision))) {
     player1Score += 1;
+    std::cout << "Player 1 has the goal!" << std::endl;
     std::cout << player1Score << " : " << player2Score << std::endl;
     Start(0);
   }
@@ -318,6 +319,7 @@ void PongGame::CheckAllCollisions() {
   // Checking for goal of player 2
   if ((ballPongObject->collision.Intersects(player1SideCollision))) {
     player2Score += 1;
+    std::cout << "Player 2 has the goal!" << std::endl;
     std::cout << player1Score << " : " << player2Score << std::endl;
     Start(1);
   }

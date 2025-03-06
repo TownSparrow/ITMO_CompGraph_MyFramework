@@ -36,14 +36,14 @@ private:
 
 	// Scores Increase Values
 	// For player 1
-	UINT player1ScoreIncrease = 1;
+	//UINT player1ScoreIncrease = 1;
 	// For player 2
-	UINT plyer2ScoreIncrease = 1;
+	//UINT plyer2ScoreIncrease = 1;
 
 	// Ball Projectile Settings
 	Vector4 ballProjectileVelocity;
 	float ballProjectileSpeed = 1.0f;
-	float ballProjectileSpeedGrow = 0.01f;
+	float ballProjectileSpeedGrow = 0.1f;
 
 	// Create One Collision
 	DirectX::BoundingBox CreateCollision(std::vector<DirectX::XMFLOAT4> points);
