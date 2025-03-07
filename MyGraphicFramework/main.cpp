@@ -6,7 +6,6 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxgi.lib")
 
-
 int main() {
   int screenWidth = 800;
   int screenHeight = 800;

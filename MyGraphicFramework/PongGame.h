@@ -68,6 +68,13 @@ private:
 		Vector3 scale = { 1.0f, 1.0f, 1.0f }
 	);
 
+	// Current scale of player objects
+	float currentScaleYPlayer1 = 1.0f;
+	float currentScaleYPlayer2 = 1.0f;
+
+	// Is there the first goal?
+	bool isTheFirstGoal = false;
+
 	// Start the game
 	void Start(UINT playerWinner);
 
@@ -107,5 +114,6 @@ public:
 	void CheckAllCollisions();
 	void Update();
 	void UpdateInterval(float deltaTime);
+	void GameOver();
 };
 

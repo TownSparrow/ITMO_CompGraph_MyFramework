@@ -63,11 +63,18 @@ void PongGame::Start(UINT playerWinner) {
   ballPongObject->position = Vector3(0.0f, 0.0f, 0.0f);
 
   // Check where to spawn the projectile
+  // Additional task: resize the mesh of player
   if (playerWinner == 0) {
-    ballProjectileVelocity = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+    ballProjectileVelocity = Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+    currentScaleYPlayer2 -= 0.1f;
+    if (currentScaleYPlayer2 <= 0.0f)
+      GameOver();
   }
   else {
-    ballProjectileVelocity = Vector4(-1.0f, 0.0f, 0.0f, 1.0f);
+    ballProjectileVelocity = Vector4(-1.0f, 0.0f, 0.0f, 0.0f);
+    currentScaleYPlayer1 -= 0.1f;
+    if (currentScaleYPlayer1 <= 0.0f)
+      GameOver();
   }
 
   // Reset collision of projectile
@@ -137,6 +144,7 @@ void PongGame::Initialize(LPCWSTR shaderPath) {
   DirectX::BoundingBox player1Collision = CreateCollision(player1Mesh.points);
   Vector3 player1Position = Vector3(-xShift + 0.05f, 0.0f, 0.0f);
   player1TriangleComponent->transforms.move = Matrix::CreateTranslation(player1Position);
+  player1TriangleComponent->transforms.scale = Matrix::CreateScale(currentScaleYPlayer1);
   player1Collision.Center = player1Position;
 
   player1PongObject = new PongObject{
@@ -160,6 +168,7 @@ void PongGame::Initialize(LPCWSTR shaderPath) {
   DirectX::BoundingBox player2Collision = CreateCollision(player2Mesh.points);
   Vector3 player2Position = Vector3(xShift - 0.05f, 0.0f, 0.0f);
   player2TriangleComponent->transforms.move = Matrix::CreateTranslation(player2Position);
+  player2TriangleComponent->transforms.scale = Matrix::CreateScale(currentScaleYPlayer2);
   player2Collision.Center = player2Position;
 
   player2PongObject = new PongObject{
@@ -313,6 +322,10 @@ void PongGame::CheckAllCollisions() {
     player1Score += 1;
     std::cout << "Player 1 has the goal!" << std::endl;
     std::cout << player1Score << " : " << player2Score << std::endl;
+    
+    // Additional task: Update the size of the player 2
+
+
     Start(0);
   }
 
@@ -348,14 +361,13 @@ void PongGame::Update() {
   player1PongObject->collision.Center = player1PongObject->position;
   player1PongObject->triangleMesh->transforms.move = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
   player1PongObject->triangleMesh->Update();
-  //player1PongObject->triangleMesh->transforms.scale = Matrix::CreateScale(1.0f + netUpdateTime * 0.2f, 1.0f + netUpdateTime * 0.2f, 1.0f);
-  player1PongObject->triangleMesh->Update();
   player1PongObject->triangleMesh->transforms.move = Matrix::CreateTranslation(player1PongObject->position);
+  player1PongObject->triangleMesh->transforms.scale = Matrix::CreateScale(1.0f, currentScaleYPlayer1, 1.0f);
   UpdateCollision(
     player1PongObject->triangleMesh->points,
     &(player1PongObject->collision),
     false,
-    Vector3(1.0f, 1.0f, 1.0f)
+    Vector3(1.0f, currentScaleYPlayer1, 1.0f)
   );
 
   // Player 2
@@ -363,14 +375,13 @@ void PongGame::Update() {
   player2PongObject->collision.Center = player2PongObject->position;
   player2PongObject->triangleMesh->transforms.move = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
   player2PongObject->triangleMesh->Update();
-  //player2PongObject->triangleMesh->transforms.scale = Matrix::CreateScale(1.0f + netUpdateTime * 0.2f, 1.0f + netUpdateTime * 0.2f, 1.0f);
-  player2PongObject->triangleMesh->Update();
   player2PongObject->triangleMesh->transforms.move = Matrix::CreateTranslation(player2PongObject->position);
+  player2PongObject->triangleMesh->transforms.scale = Matrix::CreateScale(1.0f, currentScaleYPlayer2, 1.0f);
   UpdateCollision(
     player2PongObject->triangleMesh->points,
     &(player2PongObject->collision),
     false,
-    Vector3(1.0f, 1.0f, 1.0f)
+    Vector3(1.0f, currentScaleYPlayer2, 1.0f)
   );
 }
 
@@ -385,20 +396,20 @@ void PongGame::UpdateInterval(float deltaTime) {
     UpdatePlayer(0, 0, deltaTime);
   if (game->inputDevice->IsKeyDown(Keys::S))
     UpdatePlayer(0, 1, deltaTime);
-  if (game->inputDevice->IsKeyDown(Keys::A))
-    UpdatePlayer(0, 7, deltaTime);
-  if (game->inputDevice->IsKeyDown(Keys::D))
-    UpdatePlayer(0, 6, deltaTime);
+  //if (game->inputDevice->IsKeyDown(Keys::A))
+  //  UpdatePlayer(0, 7, deltaTime);
+  //if (game->inputDevice->IsKeyDown(Keys::D))
+  //  UpdatePlayer(0, 6, deltaTime);
 
   // Arrows
   if (game->inputDevice->IsKeyDown(Keys::Up))
     UpdatePlayer(1, 1, deltaTime);
   if (game->inputDevice->IsKeyDown(Keys::Down))
     UpdatePlayer(1, 2, deltaTime);
-  if (game->inputDevice->IsKeyDown(Keys::Left))
-    UpdatePlayer(1, 4, deltaTime);
-  if (game->inputDevice->IsKeyDown(Keys::Right))
-    UpdatePlayer(1, 3, deltaTime);
+  //if (game->inputDevice->IsKeyDown(Keys::Left))
+  //  UpdatePlayer(1, 4, deltaTime);
+  //if (game->inputDevice->IsKeyDown(Keys::Right))
+  //  UpdatePlayer(1, 3, deltaTime);
 
   // Another way to make the control system (with key array)
   //if (keys[87]) 
@@ -428,3 +439,12 @@ void PongGame::UpdateInterval(float deltaTime) {
   //}
 }
 
+// --- Game Over --- //
+void PongGame::GameOver() {
+  std::cout << "GAME OVER!" << std::endl;
+  if (player1Score > player2Score)
+    std::cout << "PLAYER 1 WINS!" << std::endl;
+  else
+    std::cout << "PLAYER 2 WINS!" << std::endl;
+  exit(0);
+}
