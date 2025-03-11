@@ -16,6 +16,20 @@
 
 #include "GameComponent.h"
 
+//TEMP_ADD
+struct ConstData {
+	Matrix transformations;
+	Matrix view;
+	Matrix projection;
+	Vector4 color;
+};
+
+struct Transformations {
+	Matrix move;
+	Matrix rotate;
+	Matrix scale;
+};
+
 class TriangleComponent : public GameComponent {
 private:
 	ID3D11InputLayout* layout;
@@ -35,6 +49,10 @@ private:
 public:
 	std::vector<DirectX::XMFLOAT4> points;
 	std::vector<int> indexes;
+
+	//TEMP_ADD
+	Transformations transforms;
+	ConstData constData;
 
 	TriangleComponent(Game* gameInput) : GameComponent(gameInput) {
 		layout = nullptr;
@@ -56,8 +74,11 @@ public:
 		std::vector<UINT> offsetsInput
 	);
 
-	void Draw(ConstData* data = nullptr);
-	void Update(ConstData* data = nullptr);
+	//void Draw(ConstData* data = nullptr);
+	//void Update(ConstData* data = nullptr);
+	//void DestroyResources();
+	void Draw();
+	void Update();
 	void DestroyResources();
 };
 

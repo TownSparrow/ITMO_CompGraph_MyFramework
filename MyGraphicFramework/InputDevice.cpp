@@ -90,6 +90,7 @@ void InputDevice::OnMouseMove(RawMouseEventArgs args)
 	//	MouseWheelDelta);
 
 	MouseMove.Broadcast(moveArgs);
+	Game::GetInstance()->MouseInputHandler(MouseOffset);
 }
 
 // --- Add Pressed Key --- //
@@ -98,14 +99,37 @@ void InputDevice::AddPressedKey(Keys key) {
 	//	return;
 	//}
 	keys->insert(key);
+	Game::GetInstance()->KeyInputHadnler(keys);
 }
 
-// --- Removce Pressed Key --- //
+// --- Remove Pressed Key --- //
 void InputDevice::RemovePressedKey(Keys key) {
 	keys->erase(key);
+	Game::GetInstance()->KeyInputHadnler(keys);
 }
 
 // --- Boolean method for checking key pressing --- //
 bool InputDevice::IsKeyDown(Keys key) {
 	return keys->count(key);
+}
+
+// Refresh Kay States
+void InputDevice::RefreshKeyStates() {
+	// Например, для нужных клавиш
+	if (GetAsyncKeyState(static_cast<int>(Keys::W)) & 0x8000)
+		keys->insert(Keys::W);
+	else
+		keys->erase(Keys::W);
+	if (GetAsyncKeyState(static_cast<int>(Keys::S)) & 0x8000)
+		keys->insert(Keys::S);
+	else
+		keys->erase(Keys::S);
+	if (GetAsyncKeyState(static_cast<int>(Keys::A)) & 0x8000)
+		keys->insert(Keys::A);
+	else
+		keys->erase(Keys::A);
+	if (GetAsyncKeyState(static_cast<int>(Keys::D)) & 0x8000)
+		keys->insert(Keys::D);
+	else
+		keys->erase(Keys::D);
 }

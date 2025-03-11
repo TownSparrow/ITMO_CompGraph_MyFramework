@@ -68,4 +68,22 @@ public:
     bool isGradient,
     const std::vector<DirectX::XMFLOAT4>& colors
   );
+
+  // Cube
+  Mesh Cube(
+    DirectX::XMFLOAT3 center,
+    float size,
+    bool isGradient,
+    const std::vector<DirectX::XMFLOAT4>& colors
+  );
+
+  // Sphere
+  Mesh Sphere(
+    DirectX::XMFLOAT3 center,
+    float radius,
+    int slices,
+    int stacks,
+    bool isGradient,
+    const std::vector<DirectX::XMFLOAT4>& colors
+  );
 };

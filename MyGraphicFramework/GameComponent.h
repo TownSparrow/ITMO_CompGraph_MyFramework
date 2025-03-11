@@ -15,35 +15,49 @@ using namespace DirectX::SimpleMath;
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
-struct ConstData {
-	Matrix transformations;
-	Matrix view;
-	Matrix projection;
-	Vector4 color;
-};
-
-struct Transformations {
-	Matrix move;
-	Matrix rotate;
-	Matrix scale;
-};
+//struct ConstData {
+//	Matrix transformations;
+//	Matrix view;
+//	Matrix projection;
+//	Vector4 color;
+//};
+//
+//struct Transformations {
+//	Matrix move;
+//	Matrix rotate;
+//	Matrix scale;
+//};
 
 class Game;
 
 class GameComponent {
 public:
-	Game* game;
+	//Game* game;
 
-	Transformations transforms;
-	ConstData constData;
+	//Transformations transforms;
+	//ConstData constData;
+
+	//GameComponent(Game* gameInput) : game(gameInput) {}
+	//~GameComponent() {};
+
+	//void Initialize() {};
+
+	//virtual void Draw(ConstData* data = nullptr) {};
+	//virtual void Update(ConstData* data = nullptr) {};
+
+	//void Reload() {};
+
+	//virtual void DestroyResources() {};
+
+	Game* game;
 
 	GameComponent(Game* gameInput) : game(gameInput) {}
 	~GameComponent() {};
 
 	void Initialize() {};
 
-	virtual void Draw(ConstData* data = nullptr) {};
-	virtual void Update(ConstData* data = nullptr) {};
+	virtual void Draw() {};
+	virtual void Update() {};
 
 	void Reload() {};
 

@@ -102,5 +102,5 @@ public:
 	bool IsKeyDown(Keys key);
 	void OnKeyDown(KeyboardInputEventArgs args);
 	void OnMouseMove(RawMouseEventArgs args);
-
+	void RefreshKeyStates();
 };

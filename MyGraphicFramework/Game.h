@@ -24,6 +24,13 @@
 // Include new tasks h-files:
 #include "PlayerControlComponent.h"
 #include "PongGame.h"
+#include "SolarSystem.h"
+#include "Camera.h"
+#include "FirstPersonCamera.h"
+#include "OrbitalCamera.h"
+
+#include <unordered_set>
+#include "Keys.h"
 
 class DisplayWin32;
 
@@ -49,6 +56,8 @@ public:
 	ID3D11DeviceContext* context;
 	Microsoft::WRL::ComPtr<ID3D11Device> device;
 	IDXGISwapChain* swapChain;
+	ID3D11Texture2D* depthStencilBuffer;
+	ID3D11DepthStencilView* depthStencilView;
 
 	float totalTime = 0;
 	unsigned int frameCount = 0;
@@ -63,6 +72,8 @@ public:
 		return instance;
 	}
 
+	Camera* activeCamera;
+
 	void Initialize(
 		int screenWidthInput,
 		int screenHeightInput,
@@ -76,6 +87,8 @@ public:
 	void PrepareFrame();
 	void UpdateInterval();
 	void MessageHandler();
+	void KeyInputHadnler(std::unordered_set<Keys>* keys);
+	void MouseInputHandler(Vector2 mouseInput);
 	void Run();
 
 	// --- Additional methods --- //
@@ -85,4 +98,8 @@ public:
 	// Pong
 	bool isPong = false;
 	void InitPongGame(LPCWSTR shaderPath);
+
+	// Solar Systen
+	bool isSolarSystem = false;
+	void InitSolarSystem(LPCWSTR shaderPath);
 };

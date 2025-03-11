@@ -68,6 +68,64 @@ void Game::Initialize(
 	// --- Init: Create Render Target View --- //
 	res = device->CreateRenderTargetView(backBuffer, nullptr, &renderView);
 
+	// --- Init: Create Depth Buffer --- //
+	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
+	depthBufferDesc.Width = screenWidth;
+	depthBufferDesc.Height = screenHeight;
+	depthBufferDesc.MipLevels = 1;
+	depthBufferDesc.ArraySize = 1;
+	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthBufferDesc.SampleDesc.Count = 1;
+	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+
+	depthStencilBuffer = nullptr;
+	device->CreateTexture2D(&depthBufferDesc, nullptr, &depthStencilBuffer);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
+	depthStencilViewDesc.Format = depthBufferDesc.Format;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+	device->CreateDepthStencilView(depthStencilBuffer, &depthStencilViewDesc, &depthStencilView);
+	context->OMSetRenderTargets(1, &renderView, depthStencilView);
+
+	ID3D11DepthStencilState* depthStencilState;
+
+	//if (isPong) {
+	//	D3D11_DEPTH_STENCIL_DESC depthDisabledDesc = {};
+
+	//	depthDisabledDesc.DepthEnable = FALSE;
+	//	depthDisabledDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+
+	//	depthDisabledDesc.StencilEnable = FALSE;
+
+	//	device->CreateDepthStencilState(&depthDisabledDesc, &depthStencilState);
+	//	std::cout << "dfgdfg";
+	//}
+	//else {
+	//	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+
+	//	depthStencilDesc.DepthEnable = TRUE;
+	//	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	//	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	//	depthStencilDesc.StencilEnable = FALSE;
+
+	//	device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
+	//};
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+
+	depthStencilDesc.DepthEnable = TRUE;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+
+	depthStencilDesc.StencilEnable = FALSE;
+
+	device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
+
+	context->OMSetDepthStencilState(depthStencilState, 1);
+
 	// --- Init: Set meshes to draw --- //
 	// background circle
 	//std::vector<UINT> stridesCircle = { 32 };
@@ -92,9 +150,12 @@ void Game::CreateBackBuffer() {
 // --- Draw --- //
 void Game::Draw() {
 	// Set color: Shrek's Swamp Green
-	float color[] = { 0.1f, 0.2f, 0.0f, 1.0f };
+	//float color[] = { 0.1f, 0.2f, 0.0f, 1.0f };
+	// Set color: Black
+	float color[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	context->ClearRenderTargetView(renderView, color);
-	context->OMSetRenderTargets(1, &renderView, nullptr);
+	//context->OMSetRenderTargets(1, &renderView, nullptr);
+	context->OMSetRenderTargets(1, &renderView, depthStencilView);
 
 	// Draw every Game Component in the cycle
 	for (GameComponent* component : components) {
@@ -124,6 +185,11 @@ void Game::Update() {
 		//	pongGame->netUpdateTime = 0.0f;
 		//};
 	};
+
+	if (isSolarSystem) {
+		SolarSystem* solarSystem = SolarSystem::GetInstance();
+		solarSystem->Update();
+	}
 
 	// Update every game component
 	for (GameComponent* component : components) {
@@ -165,6 +231,7 @@ int Game::Exit() {
 void Game::PrepareFrame() {
 	// Clear state of context for the new data
 	context->ClearState();
+	context->ClearDepthStencilView(depthStencilView, D3D11_CLEAR_DEPTH, 1.0f, 0);
 
 	// Set all default settings for viewport
 	D3D11_VIEWPORT viewport = {};
@@ -203,6 +270,9 @@ void Game::UpdateInterval() {
 	// Check for pong
 	if (isPong) PongGame::GetInstance()->UpdateInterval(deltaTime);
 
+	// Check for Solar System
+	if (isSolarSystem) SolarSystem::GetInstance()->UpdateInterval(deltaTime);
+
 	// Important order of render stages!
 	PrepareFrame();
 	Update();
@@ -221,6 +291,20 @@ void Game::MessageHandler() {
 	if (msg.message == WM_QUIT) {
 		isExitRequested = true;
 	}
+}
+
+void Game::KeyInputHadnler(std::unordered_set<Keys>* keys)
+{
+	auto curTime = std::chrono::steady_clock::now();
+	float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
+	
+	//this->inputDevice->RefreshKeyStates();
+	activeCamera->CameraMovement(keys, deltaTime);
+}
+
+void Game::MouseInputHandler(Vector2 mouseInput)
+{
+	activeCamera->CameraRotation(mouseInput);
 }
 
 // --- Running the game --- //
@@ -284,4 +368,12 @@ void Game::InitPongGame(LPCWSTR shaderPath) {
 	
 	PongGame* pongGame = PongGame::GetInstance();
 	pongGame->Initialize(shaderPath);
+}
+
+// Make Solar System
+void Game::InitSolarSystem(LPCWSTR shaderPath) {
+	isSolarSystem = true;
+
+	SolarSystem* solarSystem = SolarSystem::GetInstance();
+	solarSystem->Initialize(shaderPath);
 }

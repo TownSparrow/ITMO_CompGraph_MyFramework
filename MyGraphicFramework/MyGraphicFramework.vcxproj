@@ -127,28 +127,36 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Camera.h" />
     <ClInclude Include="Delegates.h" />
     <ClInclude Include="DisplayWin32.h" />
+    <ClInclude Include="FirstPersonCamera.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameComponent.h" />
     <ClInclude Include="InputDelegates.h" />
     <ClInclude Include="InputDevice.h" />
     <ClInclude Include="Keys.h" />
     <ClInclude Include="MeshCreator.h" />
+    <ClInclude Include="OrbitalCamera.h" />
     <ClInclude Include="PlayerControlComponent.h" />
     <ClInclude Include="PongGame.h" />
+    <ClInclude Include="SolarSystem.h" />
     <ClInclude Include="TriangleComponent.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Delegates.cpp" />
     <ClCompile Include="DisplayWin32.cpp" />
+    <ClCompile Include="FirstPersonCamera.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="GameComponent.cpp" />
     <ClCompile Include="InputDevice.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshCreator.cpp" />
+    <ClCompile Include="OrbitalCamera.cpp" />
     <ClCompile Include="PlayerControlComponent.cpp" />
     <ClCompile Include="PongGame.cpp" />
+    <ClCompile Include="SolarSystem.cpp" />
     <ClCompile Include="TriangleComponent.cpp" />
   </ItemGroup>
   <ItemGroup>

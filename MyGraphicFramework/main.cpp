@@ -7,8 +7,8 @@
 #pragma comment(lib, "dxgi.lib")
 
 int main() {
-  int screenWidth = 800;
-  int screenHeight = 800;
+  int screenWidth = 1920;
+  int screenHeight = 1080;
   LPCWSTR shaderPath = L"./Shaders/MainShader.hlsl";
 
   Game* game = Game::GetInstance();
@@ -23,8 +23,8 @@ int main() {
 
   // Init of examples and tasks:
   //game->InitTwoSquaresExample(shaderPath);
-  game->InitPongGame(shaderPath);
-
+  //game->InitPongGame(shaderPath);
+  game->InitSolarSystem(shaderPath);
   // Let the game begin!
   game->Run();
 

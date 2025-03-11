@@ -5,6 +5,10 @@
 #include <WinUser.h>
 #include <wrl.h>
 #include "Keys.h"
+#include <d2d1.h>
+#include <dwrite.h>
+#pragma comment(lib, "d2d1.lib")
+#pragma comment(lib, "dwrite.lib")
 
 class Game;
 

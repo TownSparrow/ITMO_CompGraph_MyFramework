@@ -172,7 +172,8 @@ Mesh MeshCreator::Circle(DirectX::XMFLOAT2 center, float radius, int segments, b
   points.push_back(centerColor);
 
   // Calculate outter verticles
-  float doubledPi = 6.28318530718f;
+  //float doubledPi = 6.28318530718f;
+  float doubledPi = DirectX::XM_PI * 2;
   for (int i = 0; i < segments; i++) {
     // Calculate positions
     float angle = (static_cast<float>(i) / segments) * doubledPi;
@@ -224,7 +225,9 @@ Mesh MeshCreator::Oval(DirectX::XMFLOAT2 center, float width, float height, int 
   points.push_back(centerColor);
 
   // Calculate outter verticles
-  float doubledPi = 6.28318530718f;
+  //float doubledPi = 6.28318530718f;
+  float doubledPi = DirectX::XM_PI * 2;
+
   for (int i = 0; i < segments; i++) {
     float angle = (static_cast<float>(i) / segments) * doubledPi;
     // Default positions
@@ -252,6 +255,108 @@ Mesh MeshCreator::Oval(DirectX::XMFLOAT2 center, float width, float height, int 
   }
 
   // Result
+  Mesh result = { points, indexes };
+  return result;
+}
+
+// --- Cube --- //
+Mesh MeshCreator::Cube(DirectX::XMFLOAT3 center, float size, bool isGradient, const std::vector<DirectX::XMFLOAT4>& colors) {
+  float half = size * 0.5f;
+  // Cube verticles
+  DirectX::XMFLOAT4 baseCoords[8] = {
+      { +half, +half, +half, 1.0f }, // v0
+      { -half, +half, +half, 1.0f }, // v1
+      { -half, -half, +half, 1.0f }, // v2
+      { +half, -half, +half, 1.0f }, // v3
+      { +half, +half, -half, 1.0f }, // v4
+      { -half, +half, -half, 1.0f }, // v5
+      { -half, -half, -half, 1.0f }, // v6
+      { +half, -half, -half, 1.0f }  // v7
+  };
+
+  std::vector<DirectX::XMFLOAT4> points;
+  // Adding color for each one
+  for (int i = 0; i < 8; i++) {
+    float finalX = baseCoords[i].x + center.x;
+    float finalY = baseCoords[i].y + center.y;
+    float finalZ = baseCoords[i].z + center.z;
+    // If no gradient just pick the first color
+    DirectX::XMFLOAT4 c = pickColor(isGradient, colors, i, 8);
+    points.push_back(DirectX::XMFLOAT4(finalX, finalY, finalZ, 1.0f));
+    points.push_back(c);
+  }
+
+  // Indexes for triangles
+  std::vector<int> indexes = {
+    // Front face
+    0, 1, 2,   0, 2, 3,
+    // Back face
+    4, 7, 6,   4, 6, 5,
+    // Left face
+    1, 5, 6,   1, 6, 2,
+    // Right face
+    0, 3, 7,   0, 7, 4,
+    // Top face
+    0, 4, 5,   0, 5, 1,
+    // Bottom face
+    3, 2, 6,   3, 6, 7
+  };
+
+  Mesh result = { points, indexes };
+  return result;
+}
+
+// --- Sphere --- //
+Mesh MeshCreator::Sphere(DirectX::XMFLOAT3 center, float radius, int slices, int stacks, bool isGradient, const std::vector<DirectX::XMFLOAT4>& colors) {
+  std::vector<DirectX::XMFLOAT4> points;
+  std::vector<int> indexes;
+
+  // Generate the full net of sphere
+  // For each stack and each slice i
+  for (int stack = 0; stack <= stacks; stack++) {
+    float theta = DirectX::XM_PI * static_cast<float>(stack) / stacks; // угол от 0 до PI
+    float sinTheta = sinf(theta);
+    float cosTheta = cosf(theta);
+
+    for (int slice = 0; slice <= slices; slice++) {
+      float phi = 2 * DirectX::XM_PI * static_cast<float>(slice) / slices; // угол от 0 до 2PI
+      float sinPhi = sinf(phi);
+      float cosPhi = cosf(phi);
+
+      float x = sinTheta * cosPhi;
+      float y = cosTheta;
+      float z = sinTheta * sinPhi;
+
+      // Apply radius and center shift
+      float finalX = center.x + radius * x;
+      float finalY = center.y + radius * y;
+      float finalZ = center.z + radius * z;
+      
+      // Color for each verticle
+      // Index calculating:
+      int index = stack * (slices + 1) + slice;
+      DirectX::XMFLOAT4 c = pickColor(isGradient, colors, index, (stacks + 1) * (slices + 1));
+      points.push_back(DirectX::XMFLOAT4(finalX, finalY, finalZ, 1.0f));
+      points.push_back(c);
+    }
+  }
+
+  // Indexes for triangles
+  for (int stack = 0; stack < stacks; stack++) {
+    for (int slice = 0; slice < slices; slice++) {
+      int first = stack * (slices + 1) + slice;
+      int second = first + slices + 1;
+
+      indexes.push_back(first);
+      indexes.push_back(second);
+      indexes.push_back(first + 1);
+
+      indexes.push_back(second);
+      indexes.push_back(second + 1);
+      indexes.push_back(first + 1);
+    }
+  }
+
   Mesh result = { points, indexes };
   return result;
 }

@@ -121,7 +121,8 @@ void TriangleComponent::Initialize(
 
 	// Rasterizer
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_NONE;
+	//rastDesc.CullMode = D3D11_CULL_NONE;
+	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FillMode = D3D11_FILL_SOLID  /* D3D11_FILL_WIREFRAME*/;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);
@@ -150,7 +151,8 @@ void TriangleComponent::Initialize(
 }
 
 // --- Draw of triangle --- //
-void TriangleComponent::Draw(ConstData* data) {
+//void TriangleComponent::Draw(ConstData* data) {
+void TriangleComponent::Draw() {
 	game->context->RSSetState(rastState);
 	game->context->IASetInputLayout(layout);
 	game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -163,10 +165,17 @@ void TriangleComponent::Draw(ConstData* data) {
 }
 
 // --- Update of triangle --- //
-void TriangleComponent::Update(ConstData* data) {
+//void TriangleComponent::Update(ConstData* data) {
+void TriangleComponent::Update() {
 	// Change data in constant buffer for new transformations
 	constData.transformations = transforms.scale * transforms.rotate * transforms.move;
 	constData.transformations = constData.transformations.Transpose();
+	
+	constData.view = game->activeCamera->cameraMatrix.view;
+	constData.view = constData.view.Transpose();
+
+	constData.projection = game->activeCamera->cameraMatrix.projection;
+	constData.projection = constData.projection.Transpose();
 
 	// Apply mapping of results
 	D3D11_MAPPED_SUBRESOURCE res = {};

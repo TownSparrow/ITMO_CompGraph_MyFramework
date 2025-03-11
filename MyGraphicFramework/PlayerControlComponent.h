@@ -21,5 +21,6 @@ public:
   {
   }
 
-  virtual void Update(ConstData* data = nullptr) override;
+  /*virtual void Update(ConstData* data = nullptr) override;*/
+  virtual void Update() override;
 };

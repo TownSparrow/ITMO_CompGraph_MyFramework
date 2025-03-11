@@ -3,7 +3,8 @@
 #include "TriangleComponent.h"
 
 // --- Update of player control component --- //
-void PlayerControlComponent::Update(ConstData* data) {
+//void PlayerControlComponent::Update(ConstData* data) {
+void PlayerControlComponent::Update() {
   // Set the default value of delta time
   // 60FPS: ~0.016f
   float deltaTime = 0.016f;
@@ -38,5 +39,5 @@ void PlayerControlComponent::Update(ConstData* data) {
   }
 
   // Update the matrix of controlled object (the position as for default)
-  controlledObject->transforms.move = translation * controlledObject->transforms.move;
+  //controlledObject->transform.move = translation * controlledObject->transforms.move;
 }
