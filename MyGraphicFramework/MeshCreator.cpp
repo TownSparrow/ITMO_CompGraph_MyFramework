@@ -307,19 +307,26 @@ Mesh MeshCreator::Cube(DirectX::XMFLOAT3 center, float size, bool isGradient, co
 }
 
 // --- Sphere --- //
-Mesh MeshCreator::Sphere(DirectX::XMFLOAT3 center, float radius, int slices, int stacks, bool isGradient, const std::vector<DirectX::XMFLOAT4>& colors) {
+Mesh MeshCreator::Sphere(
+  DirectX::XMFLOAT3 center,
+  float radius,
+  int slices,
+  int stacks,
+  bool isGradient,
+  const std::vector<DirectX::XMFLOAT4>& colors)
+{
   std::vector<DirectX::XMFLOAT4> points;
   std::vector<int> indexes;
 
   // Generate the full net of sphere
   // For each stack and each slice i
   for (int stack = 0; stack <= stacks; stack++) {
-    float theta = DirectX::XM_PI * static_cast<float>(stack) / stacks; // угол от 0 до PI
+    float theta = DirectX::XM_PI * static_cast<float>(stack) / stacks;
     float sinTheta = sinf(theta);
     float cosTheta = cosf(theta);
 
     for (int slice = 0; slice <= slices; slice++) {
-      float phi = 2 * DirectX::XM_PI * static_cast<float>(slice) / slices; // угол от 0 до 2PI
+      float phi = 2 * DirectX::XM_PI * static_cast<float>(slice) / slices;
       float sinPhi = sinf(phi);
       float cosPhi = cosf(phi);
 
@@ -327,36 +334,93 @@ Mesh MeshCreator::Sphere(DirectX::XMFLOAT3 center, float radius, int slices, int
       float y = cosTheta;
       float z = sinTheta * sinPhi;
 
-      // Apply radius and center shift
       float finalX = center.x + radius * x;
       float finalY = center.y + radius * y;
       float finalZ = center.z + radius * z;
-      
-      // Color for each verticle
-      // Index calculating:
-      int index = stack * (slices + 1) + slice;
-      DirectX::XMFLOAT4 c = pickColor(isGradient, colors, index, (stacks + 1) * (slices + 1));
+
+      int vertIndex = stack * (slices + 1) + slice;
+      DirectX::XMFLOAT4 c = pickColor(isGradient, colors, vertIndex, (stacks + 1) * (slices + 1));
+
       points.push_back(DirectX::XMFLOAT4(finalX, finalY, finalZ, 1.0f));
       points.push_back(c);
     }
   }
 
-  // Indexes for triangles
   for (int stack = 0; stack < stacks; stack++) {
     for (int slice = 0; slice < slices; slice++) {
       int first = stack * (slices + 1) + slice;
       int second = first + slices + 1;
 
       indexes.push_back(first);
-      indexes.push_back(second);
       indexes.push_back(first + 1);
+      indexes.push_back(second);
 
       indexes.push_back(second);
-      indexes.push_back(second + 1);
       indexes.push_back(first + 1);
+      indexes.push_back(second + 1);
     }
   }
 
-  Mesh result = { points, indexes };
+  Mesh result;
+  result.points = points;
+  result.indexes = indexes;
+  return result;
+}
+
+// --- Grid XZ --- //
+Mesh MeshCreator::GridXZCentered(
+  float gridWidth,
+  float gridDepth,
+  int numDivisionsX,
+  int numDivisionsZ,
+  bool isGradient,
+  const std::vector<DirectX::XMFLOAT4>& colors
+) {
+  std::vector<DirectX::XMFLOAT4> points;
+  std::vector<int> indexes;
+
+  float halfWidth = gridWidth * 0.5f;
+  float halfDepth = gridDepth * 0.5f;
+
+  float dx = gridWidth / numDivisionsX;
+  float dz = gridDepth / numDivisionsZ;
+
+  int vertexCount = 0;
+
+  // Vertical lines
+  for (int i = 0; i <= numDivisionsX; i++) {
+    float x = -halfWidth + i * dx;
+    DirectX::XMFLOAT4 posStart(x, 0.0f, -halfDepth, 1.0f);
+    DirectX::XMFLOAT4 colStart = pickColor(isGradient, colors, i, numDivisionsX + 1);
+    points.push_back(posStart);
+    points.push_back(colStart);
+    DirectX::XMFLOAT4 posEnd(x, 0.0f, halfDepth, 1.0f);
+    DirectX::XMFLOAT4 colEnd = pickColor(isGradient, colors, i, numDivisionsX + 1);
+    points.push_back(posEnd);
+    points.push_back(colEnd);
+    indexes.push_back(vertexCount);
+    indexes.push_back(vertexCount + 1);
+    vertexCount += 2;
+  }
+
+  // Horizontal
+  for (int j = 0; j <= numDivisionsZ; j++) {
+    float z = -halfDepth + j * dz;
+    DirectX::XMFLOAT4 posStart(-halfWidth, 0.0f, z, 1.0f);
+    DirectX::XMFLOAT4 colStart = pickColor(isGradient, colors, j, numDivisionsZ + 1);
+    points.push_back(posStart);
+    points.push_back(colStart);
+    DirectX::XMFLOAT4 posEnd(halfWidth, 0.0f, z, 1.0f);
+    DirectX::XMFLOAT4 colEnd = pickColor(isGradient, colors, j, numDivisionsZ + 1);
+    points.push_back(posEnd);
+    points.push_back(colEnd);
+    indexes.push_back(vertexCount);
+    indexes.push_back(vertexCount + 1);
+    vertexCount += 2;
+  }
+
+  Mesh result;
+  result.points = points;
+  result.indexes = indexes;
   return result;
 }

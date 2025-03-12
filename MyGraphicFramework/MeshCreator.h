@@ -86,4 +86,14 @@ public:
     bool isGradient,
     const std::vector<DirectX::XMFLOAT4>& colors
   );
+
+  // XZ-Grid
+  Mesh GridXZCentered(
+    float gridWidth,              // Полная ширина сетки (например, 20)
+    float gridDepth,              // Полная глубина сетки (например, 20)
+    int numDivisionsX,            // Число делений по оси X (вертикальные линии: numDivisionsX+1)
+    int numDivisionsZ,            // Число делений по оси Z (горизонтальные линии: numDivisionsZ+1)
+    bool isGradient,              // Если true – использовать градиент, иначе один цвет
+    const std::vector<DirectX::XMFLOAT4>& colors   // Массив цветов (минимум 1 элемент)
+  );
 };

@@ -122,7 +122,7 @@ void TriangleComponent::Initialize(
 	// Rasterizer
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	//rastDesc.CullMode = D3D11_CULL_NONE;
-	rastDesc.CullMode = D3D11_CULL_BACK;
+	rastDesc.CullMode = D3D11_CULL_FRONT;
 	rastDesc.FillMode = D3D11_FILL_SOLID  /* D3D11_FILL_WIREFRAME*/;
 
 	res = game->device->CreateRasterizerState(&rastDesc, &rastState);

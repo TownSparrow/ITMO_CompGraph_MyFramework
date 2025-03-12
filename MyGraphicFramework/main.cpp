@@ -7,8 +7,8 @@
 #pragma comment(lib, "dxgi.lib")
 
 int main() {
-  int screenWidth = 1920;
-  int screenHeight = 1080;
+  int screenWidth = 1280;
+  int screenHeight = 720;
   LPCWSTR shaderPath = L"./Shaders/MainShader.hlsl";
 
   Game* game = Game::GetInstance();
