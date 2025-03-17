@@ -9,7 +9,8 @@
 int main() {
   int screenWidth = 1280;
   int screenHeight = 720;
-  LPCWSTR shaderPath = L"./Shaders/MainShader.hlsl";
+  //LPCWSTR shaderPath = L"./Shaders/MainShader.hlsl";
+  LPCWSTR shaderPath = L"./Shaders/TaskModifiedShader.hlsl";
 
   Game* game = Game::GetInstance();
 

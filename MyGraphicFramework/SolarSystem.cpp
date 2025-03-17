@@ -510,7 +510,7 @@ void SolarSystem::Initialize(LPCWSTR shaderPath) {
 	camerasArray.push_back(testCamObject);
 	game->components.push_back(neptuneCam);
 
-	//// XZ-grid
+	// XZ-grid
 	//TriangleComponent* gridMesh = new TriangleComponent(game);
 	//Mesh gridGeometry = MeshCreator::GetInstance()->GridXZCentered(
 	//	2000.0f,
