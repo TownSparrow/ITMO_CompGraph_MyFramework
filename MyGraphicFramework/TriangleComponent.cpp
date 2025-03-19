@@ -14,6 +14,14 @@ void TriangleComponent::Initialize(
   strides = stridesInput;
   offsets = offsetsInput;
 
+  // Check what the shader is:
+  if (shaderSource == L"./Shaders/TaskModifiedShader.hlsl") {
+    shaderFileIndex = 1;
+  }
+  else {
+    shaderFileIndex = 0;
+  }
+
   // Compile vertex shader settings
   ID3DBlob* errorVertexCode = nullptr;
   HRESULT res = D3DCompileFromFile(
@@ -134,7 +142,10 @@ void TriangleComponent::Update() {
   constData.view = game->activeCamera->cameraMatrix.view.Transpose();
   constData.projection = game->activeCamera->cameraMatrix.projection.Transpose();
   constData.time = game->totalTime;
-  constData.targetColor = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+  
+  if (shaderFileIndex == 1) {
+    constData.targetColor = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+  }
 
   D3D11_MAPPED_SUBRESOURCE res = {};
   HRESULT hr = game->context->Map(constBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &res);
@@ -144,7 +155,9 @@ void TriangleComponent::Update() {
   }
 
   // Debug
-  std::cout << constData.time << std::endl;
+  if (shaderFileIndex == 1) {
+    std::cout << constData.time << std::endl;
+  }
 }
 
 void TriangleComponent::DestroyResources() {

@@ -59,7 +59,8 @@ public:
 	void SetUpAxis(Vector3 upAxisVector);
 	void RecalculateForward();
 	void CameraRotation(Vector2 mouseInput);
-	void CameraMovement(std::unordered_set<Keys>* keys, float deltaTime);
+	//void CameraMovement(std::unordered_set<Keys>* keys, float deltaTime);
+	void CameraMovement(float deltaTime);
 	void Update();
 	void DestroyResources();
 

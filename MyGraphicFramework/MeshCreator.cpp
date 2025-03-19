@@ -1,4 +1,4 @@
-#include "MeshCreator.h"
+﻿#include "MeshCreator.h"
 
 MeshCreator* MeshCreator::instance = nullptr;
 
@@ -423,4 +423,108 @@ Mesh MeshCreator::GridXZCentered(
   result.points = points;
   result.indexes = indexes;
   return result;
+}
+
+// --- Process Mesh --- //
+MeshWithTexture MeshCreator::ProcessMesh(
+  aiMesh* mesh,
+  const aiScene* scene,
+  std::string dir
+) {
+  std::vector<Vertex> points;
+  std::vector<int> indexes;
+
+  // Calculating max and min Y for all verticles
+  // (It is important to find the upper and bottom parts of mesh)
+  float minY = FLT_MAX;
+  float maxY = -FLT_MAX;
+  for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+    float y = mesh->mVertices[i].y;
+    if (y < minY) minY = y;
+    if (y > maxY) maxY = y;
+  }
+
+  // Use epsilon parameter to compare verticles
+  const float epsilon = 0.01f;
+
+  // Processing of verticles and texture coords
+  for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+    DirectX::XMFLOAT4 point;
+    // Invert Y to make correct rotation of object
+    point.x = mesh->mVertices[i].x;
+    point.y = -mesh->mVertices[i].y;
+    point.z = mesh->mVertices[i].z;
+    point.w = 1.0f; // w = 1
+
+    DirectX::XMFLOAT2 texCor(0.0f, 0.0f);
+    if (mesh->mTextureCoords[0] != nullptr) {
+      aiVector3D* pTexCoord = &(mesh->mTextureCoords[0][i]);
+      texCor = DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y);
+    }
+    else {
+      texCor = DirectX::XMFLOAT2(0.0f, 0.0f);
+    }
+
+    Vertex newPoint = { point, texCor };
+    points.push_back(newPoint);
+  }
+
+  // Processing of each index
+  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
+    const aiFace& face = mesh->mFaces[i];
+    for (unsigned int j = 0; j < face.mNumIndices; j++) {
+      indexes.push_back(face.mIndices[j]);
+    }
+  }
+
+  // Material processing: important to include the texture
+  aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+  aiString path;
+  if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
+    material->GetTexture(aiTextureType_DIFFUSE, 0, &path);
+  }
+  else {
+    path.Set("");
+  }
+  std::string filename = dir + std::string(path.C_Str());
+  std::wstring texturePath = std::wstring(filename.begin(), filename.end());
+
+  MeshWithTexture result;
+  result.points = points;
+  result.indexes = indexes;
+  result.texturePath = texturePath;
+  return result;
+}
+
+
+// --- Load Model From File --- //
+std::vector<MeshWithTexture> MeshCreator::MeshFromFile(const std::string& filepath) {
+  Assimp::Importer importer;
+
+  std::string directory = "";
+  size_t lastSlash = filepath.find_last_of("/\\");
+  directory = filepath.substr(0, lastSlash + 1);
+
+  std::vector<MeshWithTexture> meshes;
+
+  const aiScene* scene = importer.ReadFile(
+    filepath,
+    aiProcess_Triangulate
+    | aiProcess_ConvertToLeftHanded
+    | aiProcess_GenNormals
+    | aiProcess_CalcTangentSpace
+    | aiProcess_FlipUVs
+  );
+  if (scene == nullptr) {
+    std::cout << importer.GetErrorString() << std::endl;
+    return meshes;
+  }
+
+  aiNode* node = scene->mRootNode;
+  for (UINT i = 0; i < scene->mNumMeshes; i++) {
+    aiMesh* mesh = scene->mMeshes[i];
+    meshes.push_back(ProcessMesh(mesh, scene, directory));
+  }
+
+  return meshes;
 }

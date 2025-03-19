@@ -99,13 +99,13 @@ void InputDevice::AddPressedKey(Keys key) {
 	//	return;
 	//}
 	keys->insert(key);
-	Game::GetInstance()->KeyInputHadnler(keys);
+	//Game::GetInstance()->KeyInputHadnler(keys);
 }
 
 // --- Remove Pressed Key --- //
 void InputDevice::RemovePressedKey(Keys key) {
 	keys->erase(key);
-	Game::GetInstance()->KeyInputHadnler(keys);
+	//Game::GetInstance()->KeyInputHadnler(keys);
 }
 
 // --- Boolean method for checking key pressing --- //

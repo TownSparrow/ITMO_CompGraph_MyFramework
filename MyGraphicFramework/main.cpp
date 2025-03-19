@@ -9,8 +9,9 @@
 int main() {
   int screenWidth = 1280;
   int screenHeight = 720;
-  //LPCWSTR shaderPath = L"./Shaders/MainShader.hlsl";
-  LPCWSTR shaderPath = L"./Shaders/TaskModifiedShader.hlsl";
+  LPCWSTR shaderPath0 = L"./Shaders/MainShader.hlsl";
+  LPCWSTR shaderPath1 = L"./Shaders/TaskModifiedShader.hlsl";
+  LPCWSTR shaderPath2 = L"./Shaders/TextureModifiedShader.hlsl";
 
   Game* game = Game::GetInstance();
 
@@ -19,13 +20,13 @@ int main() {
     screenWidth,
     screenHeight,
     //L"./Shaders/MainShader.hlsl"
-    shaderPath
+    shaderPath0
   );
 
   // Init of examples and tasks:
   //game->InitTwoSquaresExample(shaderPath);
   //game->InitPongGame(shaderPath);
-  game->InitSolarSystem(shaderPath);
+  game->InitSolarSystem(shaderPath0);
   // Let the game begin!
   game->Run();
 

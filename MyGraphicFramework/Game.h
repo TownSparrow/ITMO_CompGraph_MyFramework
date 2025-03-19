@@ -87,7 +87,7 @@ public:
 	void PrepareFrame();
 	void UpdateInterval();
 	void MessageHandler();
-	void KeyInputHadnler(std::unordered_set<Keys>* keys);
+	//void KeyInputHadnler(std::unordered_set<Keys>* keys);
 	void MouseInputHandler(Vector2 mouseInput);
 	void Run();
 

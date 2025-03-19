@@ -43,7 +43,8 @@ public:
 	// Main methods
 	void Initialize() {};
 	virtual void CameraRotation(Vector2 mouseInput) {};
-	virtual void CameraMovement(std::unordered_set<Keys>* keys, float deltaTime) {};
+	//virtual void CameraMovement(std::unordered_set<Keys>* keys, float deltaTime) {};
+	virtual void CameraMovement(float deltaTime) {};
 	virtual void Draw() {};
 	virtual void Update() {};
 	virtual void DestroyResources() {};

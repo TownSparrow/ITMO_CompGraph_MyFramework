@@ -7,15 +7,44 @@
 #include <directxmath.h>
 #include <vector>
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
+#include "VertexStruct.h"
+
 struct Mesh {
   std::vector<DirectX::XMFLOAT4> points;
   std::vector<int> indexes;
+};
+
+struct MeshWithTexture {
+  //std::vector<DirectX::XMFLOAT4> points;
+  std::vector<Vertex> points;
+  std::vector<int> indexes;
+  std::wstring texturePath;
+  //std::wstring normalMapPath;
+  //std::wstring aoMapPath;
 };
 
 class MeshCreator {
 private:
   static MeshCreator* instance;
   MeshCreator() {};
+
+  /*void ProcessNode(
+    aiNode* node,
+    const aiScene* scene,
+    const std::string& directory,
+    std::vector<MeshWithTexture>& meshes
+  );*/
+
+  // Mesh extracting process
+  MeshWithTexture ProcessMesh(
+    aiMesh* mesh,
+    const aiScene* scene,
+    std::string dir
+  );
 
 public:
   static MeshCreator* GetInstance() {
@@ -89,11 +118,15 @@ public:
 
   // XZ-Grid
   Mesh GridXZCentered(
-    float gridWidth,              // Полная ширина сетки (например, 20)
-    float gridDepth,              // Полная глубина сетки (например, 20)
-    int numDivisionsX,            // Число делений по оси X (вертикальные линии: numDivisionsX+1)
-    int numDivisionsZ,            // Число делений по оси Z (горизонтальные линии: numDivisionsZ+1)
-    bool isGradient,              // Если true – использовать градиент, иначе один цвет
-    const std::vector<DirectX::XMFLOAT4>& colors   // Массив цветов (минимум 1 элемент)
+    float gridWidth,
+    float gridDepth,
+    int numDivisionsX,
+    int numDivisionsZ,
+    bool isGradient,
+    const std::vector<DirectX::XMFLOAT4>& colors
   );
+
+  // Load mesh from file
+  std::vector<MeshWithTexture> MeshFromFile(const std::string& filepath);
+
 };

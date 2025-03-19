@@ -1,7 +1,19 @@
 #include "Game.h"
 #include "DisplayWin32.h"
 #include "TriangleComponent.h"
+#include "TriangleWithTextureComponent.h"
 #include "MeshCreator.h"
+
+#include <random>
+#include <d3d.h>
+#include <d3d11.h>
+#include <d3dcompiler.h>
+#include <directxmath.h>
+#include <DirectXCollision.h>
+#include <SimpleMath.h>
+
+using namespace std;
+using namespace DirectX::SimpleMath;
 
 Game* Game::instance = nullptr;
 
@@ -11,7 +23,7 @@ void Game::Initialize(
 	int screenHeightInput,
 	LPCWSTR shaderPath
 ) {
-	
+
 	// --- Init: Window --- //
 	screenWidth = screenWidthInput;
 	screenHeight = screenHeightInput;
@@ -140,6 +152,41 @@ void Game::Initialize(
 	//);
 	//circle->Initialize(shaderPath, circleMeshBackground.points, circleMeshBackground.indexes, stridesCircle, offsetsCircle);
 	//Game::GetInstance()->components.push_back(circle);
+
+	// --- Init: Set object mesh to draw --- //
+	random_device rd;
+	mt19937 gen(rd());
+
+	//uniform_real_distribution<> distX(ldMapCorner.x, ruMapCorner.x);
+	//uniform_real_distribution<> distZ(ldMapCorner.z, ruMapCorner.z);
+	//uniform_real_distribution<> rotY(0, DirectX::XM_2PI);
+
+	vector<LPCSTR> models;
+	//models.push_back("./Models/Rose/Red_rose_SF.obj");
+	//models.push_back("./Models/TrashCan/Trash.obj");
+	models.push_back("./Models/Coca-Cola/Coca-Cola.obj");
+
+	uniform_int_distribution<> modelDist(0, models.size() - 1);
+
+	std::vector<UINT> strides = { 24 };
+	std::vector<UINT> offsets = { 0 };
+
+	Vector3 position = Vector3(0.0f, 0.0f, 0.0f);
+	//float rotationY = rotY(gen);
+
+	std::vector<MeshWithTexture> meshes = MeshCreator::GetInstance()->MeshFromFile(models.at(modelDist(gen)));
+	std::vector<TriangleWithTextureComponent*> modelParts;
+
+	for (MeshWithTexture mesh : meshes) {
+		TriangleWithTextureComponent* modelPart = new TriangleWithTextureComponent(GetInstance());
+		modelPart->Initialize(L"./Shaders/TextureModifiedShader.hlsl", mesh.points, mesh.indexes, strides, offsets, mesh.texturePath);
+		//modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PIDIV2, 10, DirectX::XM_PIDIV2));
+		//modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PI,0,0));
+		modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(0,0,0));
+		modelPart->transforms.move = Matrix::CreateTranslation(position);
+		GetInstance()->components.push_back(modelPart);
+		modelParts.push_back(modelPart);
+	}
 }
 
 // --- Create Back Buffer --- //
@@ -267,6 +314,8 @@ void Game::UpdateInterval() {
 		frameCount = 0;
 	}
 
+	activeCamera->CameraMovement(deltaTime);
+
 	// Check for pong
 	if (isPong) PongGame::GetInstance()->UpdateInterval(deltaTime);
 
@@ -293,14 +342,14 @@ void Game::MessageHandler() {
 	}
 }
 
-void Game::KeyInputHadnler(std::unordered_set<Keys>* keys)
-{
-	auto curTime = std::chrono::steady_clock::now();
-	float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
-	
-	//this->inputDevice->RefreshKeyStates();
-	activeCamera->CameraMovement(keys, deltaTime);
-}
+//void Game::KeyInputHadnler(std::unordered_set<Keys>* keys)
+//{
+//	auto curTime = std::chrono::steady_clock::now();
+//	float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
+//	
+//	this->inputDevice->RefreshKeyStates();
+//	activeCamera->CameraMovement(keys, deltaTime);
+//}
 
 void Game::MouseInputHandler(Vector2 mouseInput)
 {

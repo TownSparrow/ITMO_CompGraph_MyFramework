@@ -15,26 +15,14 @@
 #pragma comment(lib, "dxguid.lib")
 
 #include "GameComponent.h"
+#include "ConstBufferStruct.h"
 
 using namespace DirectX::SimpleMath;
 
-struct ConstData {
-  Matrix transformations;  // итоговая матрица world (транспонированная)
-  Matrix view;             // матрица вида (транспонированная)
-  Matrix projection;       // матрица проекции (транспонированная)
-  Vector4 targetColor; // базовый цвет (например, для смешивания)
-  float time;              // общее время, используемое для пульсации
-  float amplitude;         // амплитуда пульсации
-};
-
-struct Transformations {
-  Matrix move;
-  Matrix rotate;
-  Matrix scale;
-};
-
 class TriangleComponent : public GameComponent {
 private:
+  int shaderFileIndex;
+  
   ID3D11InputLayout* layout;
   ID3D11VertexShader* vertexShader;
   ID3DBlob* vertexByteCode;
@@ -43,7 +31,7 @@ private:
   ID3DBlob* pixelByteCode;
   ID3D11Buffer* indexBuffer;
   ID3D11RasterizerState* rastState;
-  ID3D11Buffer* constBuffer; // константный буфер для объекта
+  ID3D11Buffer* constBuffer;
 
   std::vector<UINT> strides;
   std::vector<UINT> offsets;
@@ -67,7 +55,6 @@ public:
     constBuffer = nullptr;
   }
 
-  // Инициализация с загрузкой шейдеров, вершинного и индексного буфера
   void Initialize(
     LPCWSTR shaderSource,
     std::vector<DirectX::XMFLOAT4> pointsInput,
@@ -76,12 +63,7 @@ public:
     std::vector<UINT> offsetsInput
   );
 
-  // Отрисовка объекта
   void Draw();
-
-  // Обновление константного буфера – сюда включён и параметр времени для пульсации
   void Update();
-
-  // Освобождение ресурсов
   void DestroyResources();
 };

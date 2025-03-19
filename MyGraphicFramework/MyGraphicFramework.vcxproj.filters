@@ -63,6 +63,15 @@
     <ClInclude Include="OrbitalCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="TriangleWithTextureComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ConstBufferStruct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="VertexStruct.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DisplayWin32.cpp">
@@ -107,6 +116,9 @@
     <ClCompile Include="OrbitalCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="TriangleWithTextureComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -116,5 +128,6 @@
       <Filter>Source Files\Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\TaskModifiedShader.hlsl" />
+    <FxCompile Include="Shaders\TextureModifiedShader.hlsl" />
   </ItemGroup>
 </Project>

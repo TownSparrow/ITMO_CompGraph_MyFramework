@@ -81,16 +81,17 @@ void FirstPersonCamera::CameraRotation(Vector2 mouseInput) {
 }
 
 // --- Calculate camera movement --- //
-void FirstPersonCamera::CameraMovement(std::unordered_set<Keys>* keys, float deltaTime) {
+//void FirstPersonCamera::CameraMovement(std::unordered_set<Keys>* keys, float deltaTime) {
+void FirstPersonCamera::CameraMovement(float deltaTime) {
 	// Recalculate forward target for each new time (just re-checking)
 	RecalculateForward();
-
-	// Set the new "empty" vector
-	Vector3 direction(0.0f, 0.0f, 0.0f);
 
 	// Calculate right direction vector by using the forward
 	Vector3 rightDirection = cameraUpAxis.Cross(forwardDirection);
 	rightDirection.Normalize();
+
+	// Set the new "empty" vector
+	Vector3 direction(0.0f, 0.0f, 0.0f);
 
 	// Horizontal Movement
 	if (game->inputDevice->IsKeyDown(Keys::W))
@@ -102,6 +103,13 @@ void FirstPersonCamera::CameraMovement(std::unordered_set<Keys>* keys, float del
 	if (game->inputDevice->IsKeyDown(Keys::D))
 		direction += rightDirection;
 
+	// Set velocity zero if no control
+	if (!(game->inputDevice->IsKeyDown(Keys::W)) &&
+		!(game->inputDevice->IsKeyDown(Keys::S)) &&
+		!(game->inputDevice->IsKeyDown(Keys::A)) &&
+		!(game->inputDevice->IsKeyDown(Keys::D)))
+		direction = Vector3(0.0f, 0.0f, 0.0f);
+
 	// Vertical Movement
 	if (game->inputDevice->IsKeyDown(Keys::Space))
 		direction -= cameraUpAxis;
@@ -109,18 +117,22 @@ void FirstPersonCamera::CameraMovement(std::unordered_set<Keys>* keys, float del
 		direction += cameraUpAxis;
 
 	// If some keys are activated in one time - Normalize
-	if (direction.Length() > 0.0001f)
-		direction.Normalize();
+	if (velocity.Length() > 0.0001f)
+		velocity.Normalize();
 
-	// Base speed
-	float speed = 4.0f; 
-	
+	// Calculate speed
+	float speed = 4.0f * deltaTime;
+	//float speed = 4.0f;
+
 	// Calculate velocity
-	velocity = direction * speed * deltaTime;
+	velocity = direction * speed;
 }
 
 // --- Update --- //
 void FirstPersonCamera::Update() {
+	// Recalculate forward target for each new time (just re-checking)
+	RecalculateForward();
+	
 	cameraPosition += velocity * cameraControlSpeed;
 	cameraWatchTarget += velocity * cameraControlSpeed;
 	cameraMatrix.projection = Matrix::CreatePerspectiveFieldOfView(cameraFOV, aspectRatio, nearToPlaneDistance, farFromPlaneDistance);
