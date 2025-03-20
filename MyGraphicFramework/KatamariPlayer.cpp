@@ -59,15 +59,15 @@ KatamariPlayer::KatamariPlayer(Game* gameInput)
 	game->components.push_back(katamariMesh);*/
 
 	katamariMesh = new TriangleWithTextureComponent(game);
-	std::vector<MeshWithTexture> ballSphere = MeshCreator::GetInstance()->MeshFromFile("./Models/TrashCan/Trash.obj");
-	katamariMesh->Initialize(L"./Shaders/TextureModifiedShader.hlsl", ballSphere[0].points, ballSphere[0].indexes, strides, offsets, L"./Models/TrashCan/Trash.jpg");
+	std::vector<MeshWithTexture> ballSphere = MeshCreator::GetInstance()->MeshFromFile("./Models/Katamari/katamari_ball.obj");
+	katamariMesh->Initialize(L"./Shaders/TextureModifiedShader.hlsl", ballSphere[0].points, ballSphere[0].indexes, strides, offsets, L"./Models/Katamari/katamari_texture02.jpg");
 	game->components.push_back(katamariMesh);
 
 	DirectX::BoundingSphere collision = DirectX::BoundingSphere(Vector3(0.0f, 0.0f, 0.0f), 1.0f);
 
-	Vector3 orbit = Vector3(2.0f, 2.0f, 2.0f);
+	Vector3 orbitalCamera = Vector3(4.0f, 4.0f, 4.0f);
 	mainOrbit = new OrbitalCamera(game);
-	mainOrbit->Initialize(orbit, position - orbit, position);
+	mainOrbit->Initialize(orbitalCamera, position - orbitalCamera, position);
 	game->activeCamera = mainOrbit;
 	game->components.push_back(mainOrbit);
 }

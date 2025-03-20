@@ -55,10 +55,9 @@ public:
 	KatamariPlayer(Game* gameInput);
 
 	void CollisionCheck();
-
 	void UpdateInterval(float deltaTime);
 	void Update();
 
-	OrbitalCamera* getCamera();
+	OrbitalCamera* GetCamera();
 };
 
