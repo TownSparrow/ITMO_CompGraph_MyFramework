@@ -64,24 +64,37 @@ void OrbitalCamera::CameraRotation(Vector2 mouseInput) {
 // --- Camera Movement --- //
 // There is no movement, actually... Just changing FOV
 void OrbitalCamera::CameraMovement(std::unordered_set<Keys>* keys, float deltaTime) {
-	if (game->inputDevice->IsKeyDown(Keys::W)) {
-		if (cameraFOV < 31) {
-			cameraFOV += 0.1;
-			std::cout << "Current FOV : " << cameraFOV << std::endl;
-		}
-	}
-	if (game->inputDevice->IsKeyDown(Keys::S)) {
-		if (cameraFOV > 30) {
-			cameraFOV -= 0.1;
-			std::cout << "Current FOV : " << cameraFOV << std::endl;
-		}
-	}
+	//if (game->inputDevice->IsKeyDown(Keys::W)) {
+	//	if (cameraFOV < 31) {
+	//		cameraFOV += 0.1;
+	//		std::cout << "Current FOV : " << cameraFOV << std::endl;
+	//	}
+	//}
+	//if (game->inputDevice->IsKeyDown(Keys::S)) {
+	//	if (cameraFOV > 30) {
+	//		cameraFOV -= 0.1;
+	//		std::cout << "Current FOV : " << cameraFOV << std::endl;
+	//	}
+	//}
 }
 
 // --- Update --- //
 void OrbitalCamera::Update() {
 	cameraMatrix.projection = Matrix::CreatePerspectiveFieldOfView(cameraFOV, aspectRatio, nearToPlaneDistance, farFromPlaneDistance);
 	cameraMatrix.view = Matrix::CreateLookAt(cameraPosition, cameraWatchTarget, cameraUpAxis);
+
+	if (game->inputDevice->IsKeyDown(Keys::Up)) {
+		if (cameraFOV < 31) {
+			cameraFOV += 0.01;
+			std::cout << "Current FOV : " << cameraFOV << std::endl;
+		}
+	}
+	if (game->inputDevice->IsKeyDown(Keys::Down)) {
+		if (cameraFOV > 30) {
+			cameraFOV -= 0.01;
+			std::cout << "Current FOV : " << cameraFOV << std::endl;
+		}
+	}
 }
 
 // --- Destroy Resources --- //

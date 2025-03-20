@@ -26,7 +26,7 @@ int main() {
   // Init of examples and tasks:
   //game->InitTwoSquaresExample(shaderPath);
   //game->InitPongGame(shaderPath);
-  game->InitSolarSystem(shaderPath0);
+  game->InitSolarSystem(shaderPath1);
   // Let the game begin!
   game->Run();
 
