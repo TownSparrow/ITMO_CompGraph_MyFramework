@@ -28,6 +28,7 @@
 #include "Camera.h"
 #include "FirstPersonCamera.h"
 #include "OrbitalCamera.h"
+#include "KatamariGame.h"
 
 #include <unordered_set>
 #include "Keys.h"
@@ -102,4 +103,9 @@ public:
 	// Solar Systen
 	bool isSolarSystem = false;
 	void InitSolarSystem(LPCWSTR shaderPath);
+
+	// Katamari
+	// Solar Systen
+	bool isKatamari = false;
+	void InitKatamari(LPCWSTR shaderPath);
 };

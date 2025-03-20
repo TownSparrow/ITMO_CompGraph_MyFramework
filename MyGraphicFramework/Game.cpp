@@ -238,6 +238,11 @@ void Game::Update() {
 		solarSystem->Update();
 	}
 
+	if (isKatamari) {
+		KatamariGame* katamari = KatamariGame::getInstance();
+		katamari->Update();
+	}
+
 	// Update every game component
 	for (GameComponent* component : components) {
 		component->Update();
@@ -321,6 +326,11 @@ void Game::UpdateInterval() {
 
 	// Check for Solar System
 	if (isSolarSystem) SolarSystem::GetInstance()->UpdateInterval(deltaTime);
+
+	// Check for Katamari
+	if (isKatamari) {
+		KatamariGame::getInstance()->UpdateInterval(deltaTime);
+	}
 
 	// Important order of render stages!
 	PrepareFrame();
@@ -425,4 +435,11 @@ void Game::InitSolarSystem(LPCWSTR shaderPath) {
 
 	SolarSystem* solarSystem = SolarSystem::GetInstance();
 	solarSystem->Initialize(shaderPath);
+}
+
+void Game::InitKatamari(LPCWSTR shaderPath) {
+	isKatamari = true;
+
+	KatamariGame* katamari = KatamariGame::getInstance();
+	katamari->Initialize();
 }

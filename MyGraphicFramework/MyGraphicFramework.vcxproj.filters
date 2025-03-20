@@ -72,6 +72,12 @@
     <ClInclude Include="VertexStruct.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="KatamariPlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="KatamariGame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="DisplayWin32.cpp">
@@ -117,6 +123,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TriangleWithTextureComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KatamariPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="KatamariGame.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
