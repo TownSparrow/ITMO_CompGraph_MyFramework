@@ -120,7 +120,7 @@ void TriangleComponent::Initialize(
 
   // Init default values for constant buffer data
   constData.transformations = (transforms.scale * transforms.rotate * transforms.move).Transpose();
-  constData.targetColor = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+  constData.targetColor = Vector4(0.0f, 1.0f, 0.0f, 1.0f);
   constData.time = 0.0f;
   constData.amplitude = 0.1f;
 }
@@ -144,7 +144,7 @@ void TriangleComponent::Update() {
   constData.time = game->totalTime;
   
   if (shaderFileIndex == 1) {
-    constData.targetColor = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+    constData.targetColor = Vector4(1.0f, 0.0f, 0.0f, 1.0f);
   }
 
   D3D11_MAPPED_SUBRESOURCE res = {};
@@ -155,9 +155,9 @@ void TriangleComponent::Update() {
   }
 
   // Debug
-  if (shaderFileIndex == 1) {
-    std::cout << constData.time << std::endl;
-  }
+  //if (shaderFileIndex == 1) {
+  //  std::cout << constData.time << std::endl;
+  //}
 }
 
 void TriangleComponent::DestroyResources() {

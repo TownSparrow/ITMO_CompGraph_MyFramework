@@ -61,6 +61,7 @@ public:
 	ID3D11DepthStencilView* depthStencilView;
 
 	float totalTime = 0;
+	float timeForFPS = totalTime;
 	unsigned int frameCount = 0;
 	std::chrono::time_point<std::chrono::steady_clock> PrevTime;
 

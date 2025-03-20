@@ -239,7 +239,7 @@ void Game::Update() {
 	}
 
 	if (isKatamari) {
-		KatamariGame* katamari = KatamariGame::getInstance();
+		KatamariGame* katamari = KatamariGame::GetInstance();
 		katamari->Update();
 	}
 
@@ -305,12 +305,13 @@ void Game::UpdateInterval() {
 	float deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
 	PrevTime = curTime;
 	totalTime += deltaTime;
+	timeForFPS += deltaTime;
 	frameCount++;
 
 	// Check time, calculate the FPS value and show in window
-	if (totalTime > 1.0f) {
-		float fps = frameCount / totalTime;
-		totalTime -= 1.0f;
+	if (timeForFPS > 1.0f) {
+		float fps = frameCount / timeForFPS;
+		timeForFPS -= 1.0f;
 
 		WCHAR text[256];
 		swprintf_s(text, TEXT("FPS: %f"), fps);
@@ -329,7 +330,7 @@ void Game::UpdateInterval() {
 
 	// Check for Katamari
 	if (isKatamari) {
-		KatamariGame::getInstance()->UpdateInterval(deltaTime);
+		KatamariGame::GetInstance()->UpdateInterval(deltaTime);
 	}
 
 	// Important order of render stages!
@@ -440,6 +441,6 @@ void Game::InitSolarSystem(LPCWSTR shaderPath) {
 void Game::InitKatamari(LPCWSTR shaderPath) {
 	isKatamari = true;
 
-	KatamariGame* katamari = KatamariGame::getInstance();
+	KatamariGame* katamari = KatamariGame::GetInstance();
 	katamari->Initialize();
 }

@@ -10,7 +10,6 @@
 #include <SimpleMath.h>
 
 #include "TriangleComponent.h"
-//#include "LinelistComponent.h"
 #include "TriangleWithTextureComponent.h"
 #include "MeshCreator.h"
 
@@ -23,14 +22,13 @@ class Game;
 
 using namespace DirectX::SimpleMath;
 
-class KatamariGame
-{
+class KatamariGame {
 private:
 	static KatamariGame* katamariInstance;
 	KatamariGame() {};
 
-	OrbitalCamera* mainOrbit;
-	FirstPersonCamera* mainFPS;
+	OrbitalCamera* mainOrbitalCamera;
+	FirstPersonCamera* mainFirstPersonCamera;
 	Game* game;
 
 	int objectsCount = 3;
@@ -44,7 +42,7 @@ public:
 
 	KatamariGame(const KatamariGame& katamari) = delete;
 
-	static KatamariGame* getInstance() {
+	static KatamariGame* GetInstance() {
 		if (katamariInstance == nullptr)
 			katamariInstance = new KatamariGame();
 		return katamariInstance;
@@ -52,7 +50,6 @@ public:
 
 	void Initialize();
 	void RandomObjectGeneration();
-
 	void Update();
 	void UpdateInterval(float deltaTime);
 

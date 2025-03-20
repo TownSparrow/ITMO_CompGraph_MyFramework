@@ -15,7 +15,7 @@ void KatamariGame::Initialize()
 	RandomObjectGeneration();
 
 	ball = new KatamariPlayer(game);
-	mainOrbit = ball->getCamera();
+	mainOrbitalCamera = ball->getCamera();
 }
 
 void KatamariGame::RandomObjectGeneration()
@@ -28,8 +28,7 @@ void KatamariGame::RandomObjectGeneration()
 	uniform_real_distribution<> rotY(0, DirectX::XM_2PI);
 
 	vector<LPCSTR> models;
-	models.push_back("./Models/Rose/Red_rose_SF.obj");
-	//models.push_back("./Models/SlothSword/sword.obj");
+	models.push_back("./Models/TrashCan/Trash.obj");
 
 	uniform_int_distribution<> modelDist(0, models.size() - 1);
 

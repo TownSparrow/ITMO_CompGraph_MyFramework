@@ -48,7 +48,7 @@ void KatamariPlayer::MoveKatamari(float deltaTime)
 KatamariPlayer::KatamariPlayer(Game* gameInput)
 {
 	game = gameInput;
-	katamariGame = KatamariGame::getInstance();
+	katamariGame = KatamariGame::GetInstance();
 
 	std::vector<UINT> strides = { 24 };
 	std::vector<UINT> offsets = { 0 };

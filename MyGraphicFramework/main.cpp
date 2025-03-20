@@ -26,9 +26,10 @@ int main() {
   // Init of examples and tasks:
   //game->InitTwoSquaresExample(shaderPath);
   //game->InitPongGame(shaderPath);
-  //game->InitSolarSystem(shaderPath1);
+  game->InitSolarSystem(shaderPath1);
+  //game->InitKatamari(shaderPath2);
+  
   // Let the game begin!
-  game->InitKatamari(shaderPath2);
   game->Run();
 
   return 0;
