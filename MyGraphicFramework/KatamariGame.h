@@ -8,6 +8,7 @@
 #include <directxmath.h>
 #include <DirectXCollision.h>
 #include <SimpleMath.h>
+#include <vector>
 
 #include "TriangleComponent.h"
 #include "TriangleWithTextureComponent.h"
@@ -31,11 +32,13 @@ private:
 	FirstPersonCamera* mainFirstPersonCamera;
 	Game* game;
 
-	int objectsCount = 3;
-	Vector3 ruMapCorner = Vector3(20, 0, 20);
-	Vector3 ldMapCorner = Vector3(0, 0, 0);
+	// Previous default values for base realisation
+	// Now it is in local groups
+	int objectsCount = 100;
+	Vector3 rightUpMapCorner = Vector3(20, 0, 20);
+	Vector3 leftDownMapCorner = Vector3(-20, 0, -20);
 
-	KatamariPlayer* ball;
+	KatamariPlayer* player;
 
 public:
 	std::vector<Pickable*> pickables;
@@ -49,7 +52,17 @@ public:
 	}
 
 	void Initialize();
-	void RandomObjectGeneration();
+	void SpawnLittleObjectsGroup();
+	void SpawnMediumObjectsGroup();
+	void SpawnBigObjectsGroup();
+	void SpawnRandomObjects(
+		std::vector<LPCSTR> models,
+		Vector3 leftDownMaxCorner,
+		Vector3 rightDownMaxCorner,
+		Vector3 leftDownMinCorner,
+		Vector3 rightDownMinCorner,
+		int objectsAmount
+	);
 	void Update();
 	void UpdateInterval(float deltaTime);
 

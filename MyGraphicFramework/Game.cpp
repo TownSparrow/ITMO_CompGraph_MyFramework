@@ -154,39 +154,39 @@ void Game::Initialize(
 	//Game::GetInstance()->components.push_back(circle);
 
 	// --- Init: Set object mesh to draw --- //
-	random_device rd;
-	mt19937 gen(rd());
+	//random_device rd;
+	//mt19937 gen(rd());
 
-	//uniform_real_distribution<> distX(ldMapCorner.x, ruMapCorner.x);
-	//uniform_real_distribution<> distZ(ldMapCorner.z, ruMapCorner.z);
-	//uniform_real_distribution<> rotY(0, DirectX::XM_2PI);
+	////uniform_real_distribution<> distX(ldMapCorner.x, ruMapCorner.x);
+	////uniform_real_distribution<> distZ(ldMapCorner.z, ruMapCorner.z);
+	////uniform_real_distribution<> rotY(0, DirectX::XM_2PI);
 
-	vector<LPCSTR> models;
-	//models.push_back("./Models/Rose/Red_rose_SF.obj");
-	//models.push_back("./Models/TrashCan/Trash.obj");
-	models.push_back("./Models/Coca-Cola/Coca-Cola.obj");
+	//vector<LPCSTR> models;
+	////models.push_back("./Models/Rose/Red_rose_SF.obj");
+	////models.push_back("./Models/TrashCan/Trash.obj");
+	//models.push_back("./Models/Coca-Cola/Coca-Cola.obj");
 
-	uniform_int_distribution<> modelDist(0, models.size() - 1);
+	//uniform_int_distribution<> modelDist(0, models.size() - 1);
 
-	std::vector<UINT> strides = { 24 };
-	std::vector<UINT> offsets = { 0 };
+	//std::vector<UINT> strides = { 24 };
+	//std::vector<UINT> offsets = { 0 };
 
-	Vector3 position = Vector3(0.0f, 0.0f, 0.0f);
-	//float rotationY = rotY(gen);
+	//Vector3 position = Vector3(0.0f, 0.0f, 0.0f);
+	////float rotationY = rotY(gen);
 
-	std::vector<MeshWithTexture> meshes = MeshCreator::GetInstance()->MeshFromFile(models.at(modelDist(gen)));
-	std::vector<TriangleWithTextureComponent*> modelParts;
+	//std::vector<MeshWithTexture> meshes = MeshCreator::GetInstance()->MeshFromFile(models.at(modelDist(gen)));
+	//std::vector<TriangleWithTextureComponent*> modelParts;
 
-	for (MeshWithTexture mesh : meshes) {
-		TriangleWithTextureComponent* modelPart = new TriangleWithTextureComponent(GetInstance());
-		modelPart->Initialize(L"./Shaders/TextureModifiedShader.hlsl", mesh.points, mesh.indexes, strides, offsets, mesh.texturePath);
-		//modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PIDIV2, 10, DirectX::XM_PIDIV2));
-		//modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PI,0,0));
-		modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(0,0,0));
-		modelPart->transforms.move = Matrix::CreateTranslation(position);
-		GetInstance()->components.push_back(modelPart);
-		modelParts.push_back(modelPart);
-	}
+	//for (MeshWithTexture mesh : meshes) {
+	//	TriangleWithTextureComponent* modelPart = new TriangleWithTextureComponent(GetInstance());
+	//	modelPart->Initialize(L"./Shaders/TextureModifiedShader.hlsl", mesh.points, mesh.indexes, strides, offsets, mesh.texturePath);
+	//	//modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PIDIV2, 10, DirectX::XM_PIDIV2));
+	//	//modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PI,0,0));
+	//	modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(0,0,0));
+	//	modelPart->transforms.move = Matrix::CreateTranslation(position);
+	//	GetInstance()->components.push_back(modelPart);
+	//	modelParts.push_back(modelPart);
+	//}
 }
 
 // --- Create Back Buffer --- //
