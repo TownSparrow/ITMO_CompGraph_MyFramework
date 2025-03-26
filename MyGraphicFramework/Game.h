@@ -29,6 +29,7 @@
 #include "FirstPersonCamera.h"
 #include "OrbitalCamera.h"
 #include "KatamariGame.h"
+#include "LineComponent.h"
 
 #include <unordered_set>
 #include "Keys.h"
@@ -92,6 +93,7 @@ public:
 	//void KeyInputHadnler(std::unordered_set<Keys>* keys);
 	void MouseInputHandler(Vector2 mouseInput);
 	void Run();
+	void InitLineNet();
 
 	// --- Additional methods --- //
 	// Task 1

@@ -151,6 +151,7 @@
     <ClInclude Include="KatamariGame.h" />
     <ClInclude Include="KatamariPlayer.h" />
     <ClInclude Include="Keys.h" />
+    <ClInclude Include="LineComponent.h" />
     <ClInclude Include="MeshCreator.h" />
     <ClInclude Include="OrbitalCamera.h" />
     <ClInclude Include="PlayerControlComponent.h" />
@@ -170,6 +171,7 @@
     <ClCompile Include="InputDevice.cpp" />
     <ClCompile Include="KatamariGame.cpp" />
     <ClCompile Include="KatamariPlayer.cpp" />
+    <ClCompile Include="LineComponent.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="MeshCreator.cpp" />
     <ClCompile Include="OrbitalCamera.cpp" />

@@ -187,6 +187,7 @@ void Game::Initialize(
 	//	GetInstance()->components.push_back(modelPart);
 	//	modelParts.push_back(modelPart);
 	//}
+	InitLineNet();
 }
 
 // --- Create Back Buffer --- //
@@ -443,4 +444,42 @@ void Game::InitKatamari(LPCWSTR shaderPath) {
 
 	KatamariGame* katamari = KatamariGame::GetInstance();
 	katamari->Initialize();
+}
+
+void Game::InitLineNet() {
+	std::vector<UINT> strides = { 32 };
+	std::vector<UINT> offsets = { 0 };
+
+	std::vector<DirectX::XMFLOAT4> lines;
+
+	
+	for (int i = 0; i <= 400; i++) {
+		lines.push_back(Vector4(-100.0f, 0.0f, -100.0f + i, 1.0f));
+		lines.push_back(Vector4(0.2f, 0.2f, 0.2f, 0.2f));
+		lines.push_back(Vector4(100.0f, 0.0f, -100.0f + i, 1.0f));
+		lines.push_back(Vector4(0.2f, 0.2f, 0.2f, 0.2f));
+	}
+
+	//std::vector<int> indexes;
+
+	LineComponent* linesComponent1 = new LineComponent(GetInstance());
+	linesComponent1->Initialize(
+		L"./Shaders/MainShader.hlsl",
+		lines, 
+		//indexes, 
+		strides, 
+		offsets
+	);
+	components.push_back(linesComponent1);
+
+	LineComponent* linesComponent2 = new LineComponent(GetInstance());
+	linesComponent2->Initialize(
+		L"./Shaders/MainShader.hlsl",
+		lines,
+		//indexes, 
+		strides,
+		offsets
+	);
+	linesComponent2->transforms.rotate = Matrix::CreateRotationY(DirectX::XM_PIDIV2);
+	components.push_back(linesComponent2);
 }
