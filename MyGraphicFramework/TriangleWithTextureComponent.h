@@ -34,6 +34,7 @@ private:
   ID3D11Buffer* indexBuffer;
   ID3D11RasterizerState* rastState;
   ID3D11Buffer* constBuffer;
+  ID3D11Buffer* lightBuffer;
 
   std::vector<UINT> strides;
   std::vector<UINT> offsets;
@@ -43,6 +44,9 @@ private:
   ID3D11ShaderResourceView* textureView;
   ID3D11SamplerState* samplerState;
 
+  // Also materials
+  Material* material;
+
 public:
   //std::vector<DirectX::XMFLOAT4> points;
   std::vector<Vertex> points;
@@ -50,6 +54,7 @@ public:
 
   Transformations transforms;
   ConstData constData;
+  LightData lightData;
 
   TriangleWithTextureComponent(Game* gameInput) : GameComponent(gameInput) {
     layout = nullptr;
@@ -73,7 +78,8 @@ public:
     // For working with textures:
     ,
     //bool is2DInput,
-    std::wstring texturePath
+    std::wstring texturePath,
+    Material* materialInput
   );
 
   void Draw();

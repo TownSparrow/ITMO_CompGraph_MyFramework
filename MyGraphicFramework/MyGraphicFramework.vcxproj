@@ -151,6 +151,7 @@
     <ClInclude Include="KatamariGame.h" />
     <ClInclude Include="KatamariPlayer.h" />
     <ClInclude Include="Keys.h" />
+    <ClInclude Include="LightSystem.h" />
     <ClInclude Include="LineComponent.h" />
     <ClInclude Include="MeshCreator.h" />
     <ClInclude Include="OrbitalCamera.h" />

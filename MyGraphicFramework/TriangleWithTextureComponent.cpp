@@ -4,23 +4,33 @@
 
 using namespace DirectX;
 
+// --- Init --- //
 void TriangleWithTextureComponent::Initialize(
   LPCWSTR shaderSource,
-  //std::vector<DirectX::XMFLOAT4> pointsInput,
   std::vector<Vertex> pointsInput,
   std::vector<int> indexesInput,
   std::vector<UINT> stridesInput,
   std::vector<UINT> offsetsInput,
-  //bool is2DInput,
-  std::wstring texturePath
+  std::wstring texturePath,
+  Material* materialInput
 ) {
+
   points = pointsInput;
   indexes = indexesInput;
-  strides = stridesInput;
-  offsets = offsetsInput;
-  //is2D = is2DInput;
+  
+  // Check strides and set default values in empty case
+  if (stridesInput.empty())
+    strides = { 36 };
+  else
+    strides = stridesInput;
+  if (offsetsInput.empty())
+    offsets = { 0 };
+  else
+    offsets = offsetsInput;
 
-  // Check what the shader is:
+  material = materialInput;
+
+  // Find what the shader is (useful for additional tasks)
   if (shaderSource == L"./Shaders/TextureModifiedShader.hlsl") {
     shaderFileIndex = 2;
   }
@@ -31,7 +41,7 @@ void TriangleWithTextureComponent::Initialize(
     shaderFileIndex = 0;
   }
 
-  // Compile vertex shader settings
+  // Compiling vertex shader
   ID3DBlob* errorVertexCode = nullptr;
   HRESULT res = D3DCompileFromFile(
     shaderSource,
@@ -44,14 +54,14 @@ void TriangleWithTextureComponent::Initialize(
     &vertexByteCode,
     &errorVertexCode
   );
+  if (FAILED(res)) {
+    std::cout << "Compiling vertex shader error" << std::endl;
+  }
 
-  // Compile pixel shader settings
-  D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
-
+  // Compiling pixel shader
   ID3DBlob* errorPixelCode = nullptr;
   res = D3DCompileFromFile(
     shaderSource,
-    //Shader_Macros,
     nullptr,
     nullptr,
     "PSMain",
@@ -61,8 +71,11 @@ void TriangleWithTextureComponent::Initialize(
     &pixelByteCode,
     &errorPixelCode
   );
+  if (FAILED(res)) {
+    std::cout << "Compiling pixel shader error" << std::endl;
+  }
 
-  // Create shader
+  // Creating shaders
   game->device->CreateVertexShader(
     vertexByteCode->GetBufferPointer(),
     vertexByteCode->GetBufferSize(),
@@ -76,49 +89,36 @@ void TriangleWithTextureComponent::Initialize(
     &pixelShader
   );
 
-  // Describing elements positins and colors
+  // Create input elements
   D3D11_INPUT_ELEMENT_DESC InputElements[] = {
-  D3D11_INPUT_ELEMENT_DESC {
-    "POSITION",
-    0,
-    DXGI_FORMAT_R32G32B32A32_FLOAT,
-    0,
-    0,
-    D3D11_INPUT_PER_VERTEX_DATA,
-    0},
-  D3D11_INPUT_ELEMENT_DESC {
-    "TEXCOORD",
-    0,
-    DXGI_FORMAT_R32G32_FLOAT,
-    0,
-    D3D11_APPEND_ALIGNED_ELEMENT,
-    D3D11_INPUT_PER_VERTEX_DATA,
-    0}
+    { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0,                          D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
   };
 
-  game->device->CreateInputLayout(
+  res = game->device->CreateInputLayout(
     InputElements,
-    2,
+    3,
     vertexByteCode->GetBufferPointer(),
     vertexByteCode->GetBufferSize(),
-    &layout);
+    &layout
+  );
 
-  // Create vertex buffer
+  // Vertex buffer
   D3D11_BUFFER_DESC vertexBufDesc = {};
   vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
   vertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
   vertexBufDesc.CPUAccessFlags = 0;
   vertexBufDesc.MiscFlags = 0;
   vertexBufDesc.StructureByteStride = 0;
-  //vertexBufDesc.ByteWidth = sizeof(DirectX::XMFLOAT4) * points.size();
   vertexBufDesc.ByteWidth = sizeof(Vertex) * points.size();
   D3D11_SUBRESOURCE_DATA vertexData = {};
   vertexData.pSysMem = points.data();
   vertexData.SysMemPitch = 0;
   vertexData.SysMemSlicePitch = 0;
-  game->device->CreateBuffer(&vertexBufDesc, &vertexData, &vertexBuffer);
+  res = game->device->CreateBuffer(&vertexBufDesc, &vertexData, &vertexBuffer);
 
-  // Create index buffer
+  // Index buffer
   D3D11_BUFFER_DESC indexBufDesc = {};
   indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
   indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
@@ -130,40 +130,51 @@ void TriangleWithTextureComponent::Initialize(
   indexData.pSysMem = indexes.data();
   indexData.SysMemPitch = 0;
   indexData.SysMemSlicePitch = 0;
-  game->device->CreateBuffer(&indexBufDesc, &indexData, &indexBuffer);
+  res = game->device->CreateBuffer(&indexBufDesc, &indexData, &indexBuffer);
 
-  // Create rasterizer
+  // Rasterizer
   CD3D11_RASTERIZER_DESC rastDesc = {};
-  rastDesc.CullMode = D3D11_CULL_NONE; //D3D11_CULL_FRONT;
+  rastDesc.CullMode = D3D11_CULL_NONE;
   rastDesc.FillMode = D3D11_FILL_SOLID;
   res = game->device->CreateRasterizerState(&rastDesc, &rastState);
 
-  // Create const buffer
+  // Constant vbuffer
   D3D11_BUFFER_DESC constBufferDesc = {};
   constBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
   constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
   constBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
   constBufferDesc.MiscFlags = 0;
   constBufferDesc.StructureByteStride = 0;
-  // constBufferDesc.ByteWidth = sizeof(ConstData);
   UINT bufferSize = ((sizeof(ConstData) + 15) / 16) * 16;
   constBufferDesc.ByteWidth = bufferSize;
-  game->device->CreateBuffer(&constBufferDesc, nullptr, &constBuffer);
+  res = game->device->CreateBuffer(&constBufferDesc, nullptr, &constBuffer);
 
-  // Init default values for transforms
+  // Init transforms default values
   transforms = {};
   transforms.move = Matrix::CreateTranslation(0.0f, 0.0f, 0.0f);
   transforms.rotate = Matrix::CreateRotationY(0.0f);
   transforms.scale = Matrix::CreateScale(1.0f, 1.0f, 1.0f);
 
-  // Init default values for constant buffer data
+  // Set values for constant buffer
   constData = {};
   constData.transformations = (transforms.scale * transforms.rotate * transforms.move).Transpose();
   constData.targetColor = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
   constData.time = 0.0f;
   constData.amplitude = 0.1f;
 
-  // Create sampler
+  // Light buffer
+  D3D11_BUFFER_DESC lightBufferDesc = {};
+  lightBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
+  lightBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+  lightBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+  lightBufferDesc.MiscFlags = 0;
+  lightBufferDesc.StructureByteStride = 0;
+  lightBufferDesc.ByteWidth = sizeof(LightData);
+  res = game->device->CreateBuffer(&lightBufferDesc, nullptr, &lightBuffer);
+
+  lightData = {};
+
+  // Sampler
   D3D11_SAMPLER_DESC samplerDesc = {};
   samplerDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
   samplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
@@ -172,15 +183,13 @@ void TriangleWithTextureComponent::Initialize(
   samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
   samplerDesc.MinLOD = 0;
   samplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
   samplerState = nullptr;
-  game->device->CreateSamplerState(&samplerDesc, &samplerState);
+  res = game->device->CreateSamplerState(&samplerDesc, &samplerState);
 
-  // Create texture2D
+  // Texture loading
   DirectX::ScratchImage image;
   DirectX::TexMetadata metadata;
-
-  DirectX::LoadFromWICFile(texturePath.c_str(), DirectX::WIC_FLAGS_DEFAULT_SRGB, nullptr, image);
+  res = DirectX::LoadFromWICFile(texturePath.c_str(), DirectX::WIC_FLAGS_DEFAULT_SRGB, nullptr, image);
   metadata = image.GetMetadata();
 
   D3D11_TEXTURE2D_DESC textureDesc = {};
@@ -200,15 +209,29 @@ void TriangleWithTextureComponent::Initialize(
 
   res = game->device->CreateTexture2D(&textureDesc, &textureData, &texture2D);
 
-  // Create shader resource view
+  // Shader Resource View for the textures
   D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
   srvDesc.Format = textureDesc.Format;
   srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
   srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
-
   res = game->device->CreateShaderResourceView(texture2D, &srvDesc, &textureView);
   texture2D->Release();
 }
+
+
+//void TriangleWithTextureComponent::Draw() {
+//  game->context->RSSetState(rastState);
+//  game->context->IASetInputLayout(layout);
+//  game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+//  game->context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+//  game->context->VSSetConstantBuffers(0, 1, &constBuffer);
+//  game->context->PSSetShaderResources(0, 1, &textureView);
+//  game->context->PSGetSamplers(0, 1, &samplerState);
+//  game->context->IASetVertexBuffers(0, 1, &vertexBuffer, strides.data(), offsets.data());
+//  game->context->VSSetShader(vertexShader, nullptr, 0);
+//  game->context->PSSetShader(pixelShader, nullptr, 0);
+//  game->context->DrawIndexed(indexes.size(), 0, 0);
+//}
 
 void TriangleWithTextureComponent::Draw() {
   game->context->RSSetState(rastState);
@@ -216,8 +239,10 @@ void TriangleWithTextureComponent::Draw() {
   game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   game->context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
   game->context->VSSetConstantBuffers(0, 1, &constBuffer);
+  game->context->PSSetConstantBuffers(1, 1, &lightBuffer);
   game->context->PSSetShaderResources(0, 1, &textureView);
-  game->context->PSGetSamplers(0, 1, &samplerState);
+  //game->context->PSGetSamplers(0, 1, &samplerState);
+  game->context->PSSetSamplers(0, 1, &samplerState);
   game->context->IASetVertexBuffers(0, 1, &vertexBuffer, strides.data(), offsets.data());
   game->context->VSSetShader(vertexShader, nullptr, 0);
   game->context->PSSetShader(pixelShader, nullptr, 0);
@@ -241,6 +266,26 @@ void TriangleWithTextureComponent::Update() {
     game->context->Unmap(constBuffer, 0);
   }
 
+  // Update light info
+  if (game->directionalLight != nullptr)
+    lightData.directional = *(game->directionalLight);
+  
+  if (game->pointLight != nullptr)
+    lightData.point = *(game->pointLight);
+
+  lightData.material = *material;
+  lightData.spectator = Vector4(
+    game->activeCamera->cameraPosition.x,
+    game->activeCamera->cameraPosition.y,
+    game->activeCamera->cameraPosition.z,
+    1.0f
+  );
+
+  D3D11_MAPPED_SUBRESOURCE resLight = {};
+  game->context->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &resLight);
+  memcpy(resLight.pData, &lightData, sizeof(LightData));
+  game->context->Unmap(lightBuffer, 0);
+
   // Debug
   if (shaderFileIndex == 1) {
     std::cout << constData.time << std::endl;
@@ -259,4 +304,5 @@ void TriangleWithTextureComponent::DestroyResources() {
   if (indexBuffer) indexBuffer->Release();
   if (rastState) rastState->Release();
   if (constBuffer) constBuffer->Release();
+  if (material) delete material;
 }

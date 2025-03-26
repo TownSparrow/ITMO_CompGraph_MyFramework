@@ -104,7 +104,9 @@ KatamariPlayer::KatamariPlayer(Game* gameInput) {
 	game = gameInput;
 	katamariGame = KatamariGame::GetInstance();
 
-	std::vector<UINT> strides = { 24 };
+	UINT stride = sizeof(Vertex);
+	std::vector<UINT> strides = { stride };
+	//std::vector<UINT> strides = { 24 };
 	std::vector<UINT> offsets = { 0 };
 
 	/*katamariMesh = new TriangleComponent(game);
@@ -112,12 +114,21 @@ KatamariPlayer::KatamariPlayer(Game* gameInput) {
 	katamariMesh->Initialize(L"./Shaders/MyVeryFirstShader.hlsl", ballSphere.points, ballSphere.indeces, strides, offsets, false);
 	game->components.push_back(katamariMesh);*/
 
+	Material* material = new Material{
+		Vector4(1.0f, 1.0f, 1.0f, 1.00f),
+		Vector4(0.28f, 0.28f, 0.28f, 1.00f),
+		Vector4(0.77f, 0.77f, 0.77f, 5.9f)
+	};
+
 	katamariMesh = new TriangleWithTextureComponent(game);
 	std::vector<MeshWithTexture> ballSphere = MeshCreator::GetInstance()->MeshFromFile("./Models/Katamari/katamari_ball.obj");
-	katamariMesh->Initialize(L"./Shaders/TextureModifiedShader.hlsl", ballSphere[0].points, ballSphere[0].indexes, strides, offsets, L"./Models/Katamari/katamari_texture02.jpg");
+	katamariMesh->Initialize(L"./Shaders/TextureModifiedShader.hlsl", ballSphere[0].points, ballSphere[0].indexes, strides, offsets, L"./Models/Katamari/katamari_texture02.jpg", material);
 	game->components.push_back(katamariMesh);
 
-	collision = DirectX::BoundingSphere(Vector3(0.0f, 0.0f, 0.0f), radius);
+	position = Vector3(0.0f, -radius, 0.0f);
+
+	//collision = DirectX::BoundingSphere(Vector3(0.0f, 0.0f, 0.0f), radius);
+	collision = DirectX::BoundingSphere(position, radius);
 
 	Vector3 orbitalCamera = Vector3(4.0f, 4.0f, 4.0f);
 	mainOrbitalCam = new OrbitalCamera(game);

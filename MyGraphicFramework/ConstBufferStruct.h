@@ -13,6 +13,8 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxguid.lib")
 
+#include "LightSystem.h"
+
 using namespace DirectX::SimpleMath;
 
 struct ConstData {
@@ -28,4 +30,17 @@ struct Transformations {
   Matrix move;
   Matrix rotate;
   Matrix scale;
+};
+
+struct Material {
+  Vector4 ambient;
+  Vector4 diffuse;
+  Vector4 specular;
+};
+
+struct LightData {
+  Material material;
+  DirectionalLight directional;
+  PointLight point;
+  Vector4 spectator;
 };

@@ -13,12 +13,63 @@ void KatamariGame::Initialize() {
 	//std::vector<UINT> offsets = { 0 };
 
 	//SpawnRandomObjects();
+  SpawnGround();
   SpawnLittleObjectsGroup();
   SpawnMediumObjectsGroup();
   SpawnBigObjectsGroup();
 
 	player = new KatamariPlayer(game);
 	mainOrbitalCamera = player->GetCamera();
+
+  // Lighting
+  // Directional Light
+  directionalLight = new DirectionalLight{
+    // Ambient
+    Vector4(0.2f, 0.2f, 0.5f, 1.0f),
+    // Diffuse
+    Vector4(0.2f, 0.2f, 0.8f, 1.0f),
+    // Specular
+    Vector4(0.2f, 0.2f, 0.2, 0.2f),
+    // Direction
+    Vector4(0.0f, 1.0f, 1.0f, 1.0f)
+  };
+  game->directionalLight = directionalLight;
+
+  // Point Light
+  pointLight = new PointLight{
+    // Ambient
+    Vector4(1.5f, 1.5f, 0.3f, 1.0f),
+    // Diffuse
+    Vector4(2.0f, 2.0f, 0.8f, 1.0f),
+    // Specular
+    Vector4(1.5f, 1.5f, 1.2f, 1.0f),
+    // Position
+    Vector3(0.0f, -5.0f, 0.0f),
+    // Radius
+    15.0f,
+    // Attenuation
+    Vector4(0.2f, 0.02f, 0.0f, 1.0f)
+  };
+  game->pointLight = pointLight;
+}
+
+// --- Spawn ground --- //
+void KatamariGame::SpawnGround() {
+  UINT stride = sizeof(Vertex);
+  std::vector<UINT> strides = { stride };
+  //std::vector<UINT> strides = { 24 };
+  std::vector<UINT> offsets = { 0 };
+
+  Material* material = new Material{
+    Vector4(0.23f, 0.23f, 0.23f, 1.00f),
+    Vector4(0.28f, 0.28f, 0.28f, 1.00f),
+    Vector4(0.77f, 0.77f, 0.77f, 5.9f)
+  };
+
+  TriangleWithTextureComponent* roadTriangleComponent = new TriangleWithTextureComponent(game);
+  std::vector<MeshWithTexture> roadMesh = MeshCreator::GetInstance()->MeshFromFile("./Models/RoadPlane/RoadPlane.obj");
+  roadTriangleComponent->Initialize(L"./Shaders/TextureModifiedShader.hlsl", roadMesh[0].points, roadMesh[0].indexes, strides, offsets, roadMesh[0].texturePath, material);
+  game->components.push_back(roadTriangleComponent);
 }
 
 // --- Spawn group of little objects --- //
@@ -107,7 +158,7 @@ void KatamariGame::SpawnBigObjectsGroup() {
   );
 }
 
-// Previous Base realisation
+// Previous Base realization
 //void KatamariGame::SpawnRandomObjects() {
 //  random_device rd;
 //  mt19937 gen(rd());
@@ -232,7 +283,9 @@ void KatamariGame::SpawnRandomObjects(
   // Models array
   uniform_int_distribution<> modelDist(0, models.size() - 1);
 
-  std::vector<UINT> strides = { 24 };
+  UINT stride = sizeof(Vertex);
+  std::vector<UINT> strides = { stride };
+  //std::vector<UINT> strides = { 32 };
   std::vector<UINT> offsets = { 0 };
 
   for (int i = 0; i < objectsAmount; i++) {
@@ -276,7 +329,12 @@ void KatamariGame::SpawnRandomObjects(
     // Init models components
     for (MeshWithTexture mesh : meshes) {
       TriangleWithTextureComponent* modelPart = new TriangleWithTextureComponent(game);
-      modelPart->Initialize(L"./Shaders/TextureModifiedShader.hlsl", mesh.points, mesh.indexes, strides, offsets, mesh.texturePath);
+      Material* material = new Material{
+        Vector4(0.2f, 0.2f, 0.2f, 0.2f),
+        Vector4(0.2f, 0.2f, 0.2f, 0.2f),
+        Vector4(0.55f, 0.55f, 0.55f, 1.00f)
+      };
+      modelPart->Initialize(L"./Shaders/TextureModifiedShader.hlsl", mesh.points, mesh.indexes, strides, offsets, mesh.texturePath, material);
       modelPart->transforms.rotate = rotationMatrix;
       modelPart->transforms.move = Matrix::CreateTranslation(position);
       game->components.push_back(modelPart);

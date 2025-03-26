@@ -187,7 +187,13 @@ void Game::Initialize(
 	//	GetInstance()->components.push_back(modelPart);
 	//	modelParts.push_back(modelPart);
 	//}
+	
+	// Adding Line Net
 	InitLineNet();
+
+	// Init lights
+	directionalLight = nullptr;
+	pointLight = nullptr;
 }
 
 // --- Create Back Buffer --- //
@@ -274,6 +280,11 @@ int Game::Exit() {
 	swapChain->Release();
 	backBuffer->Release();
 	renderView->Release();
+
+	// Release lights
+	if (directionalLight != nullptr) delete directionalLight;
+	if (pointLight != nullptr) delete pointLight;
+	
 
 	// Message for exit
 	std::cout << "That's all, folks!\n";

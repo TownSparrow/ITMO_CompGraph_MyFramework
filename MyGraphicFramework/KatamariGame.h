@@ -16,6 +16,7 @@
 
 #include "OrbitalCamera.h"
 #include "FirstPersonCamera.h"
+#include "LightSystem.h"
 
 #include "KatamariPlayer.h"
 
@@ -40,6 +41,10 @@ private:
 
 	KatamariPlayer* player;
 
+	// Light sources
+	PointLight* pointLight;
+	DirectionalLight* directionalLight;
+
 public:
 	std::vector<Pickable*> pickables;
 
@@ -52,6 +57,7 @@ public:
 	}
 
 	void Initialize();
+	void SpawnGround();
 	void SpawnLittleObjectsGroup();
 	void SpawnMediumObjectsGroup();
 	void SpawnBigObjectsGroup();

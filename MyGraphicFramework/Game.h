@@ -30,6 +30,7 @@
 #include "OrbitalCamera.h"
 #include "KatamariGame.h"
 #include "LineComponent.h"
+#include "LightSystem.h"
 
 #include <unordered_set>
 #include "Keys.h"
@@ -76,6 +77,8 @@ public:
 	}
 
 	Camera* activeCamera;
+	DirectionalLight* directionalLight;
+	PointLight* pointLight;
 
 	void Initialize(
 		int screenWidthInput,

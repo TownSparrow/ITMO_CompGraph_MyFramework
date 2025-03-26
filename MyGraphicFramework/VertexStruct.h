@@ -14,4 +14,5 @@
 struct Vertex {
 	DirectX::XMFLOAT4 position;
 	DirectX::XMFLOAT2 textureCordinates;
+	DirectX::XMFLOAT3 normal;
 };

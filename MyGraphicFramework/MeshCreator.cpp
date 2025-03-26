@@ -426,6 +426,7 @@ Mesh MeshCreator::GridXZCentered(
 }
 
 // --- Process Mesh --- //
+// --- Process Mesh --- //
 MeshWithTexture MeshCreator::ProcessMesh(
   aiMesh* mesh,
   const aiScene* scene,
@@ -434,42 +435,36 @@ MeshWithTexture MeshCreator::ProcessMesh(
   std::vector<Vertex> points;
   std::vector<int> indexes;
 
-  // Calculating max and min Y for all verticles
-  // (It is important to find the upper and bottom parts of mesh)
-  float minY = FLT_MAX;
-  float maxY = -FLT_MAX;
-  for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
-    float y = mesh->mVertices[i].y;
-    if (y < minY) minY = y;
-    if (y > maxY) maxY = y;
-  }
-
-  // Use epsilon parameter to compare verticles
-  const float epsilon = 0.01f;
-
-  // Processing of verticles and texture coords
+  // Перебор всех вершин
   for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     DirectX::XMFLOAT4 point;
-    // Invert Y to make correct rotation of object
+    // Инвертируем Y для корректной ориентации
     point.x = mesh->mVertices[i].x;
     point.y = -mesh->mVertices[i].y;
     point.z = mesh->mVertices[i].z;
-    point.w = 1.0f; // w = 1
+    point.w = 1.0f;
 
+    // Текстурные координаты
     DirectX::XMFLOAT2 texCor(0.0f, 0.0f);
     if (mesh->mTextureCoords[0] != nullptr) {
       aiVector3D* pTexCoord = &(mesh->mTextureCoords[0][i]);
       texCor = DirectX::XMFLOAT2(pTexCoord->x, pTexCoord->y);
     }
-    else {
-      texCor = DirectX::XMFLOAT2(0.0f, 0.0f);
+
+    // Считываем нормали, которые были сгенерированы Assimp (или импортированы, если присутствуют)
+    DirectX::XMFLOAT3 normal(0.0f, 0.0f, 0.0f);
+    if (mesh->HasNormals()) {
+      normal.x = mesh->mNormals[i].x;
+      normal.y = mesh->mNormals[i].y;
+      normal.z = mesh->mNormals[i].z;
     }
 
-    Vertex newPoint = { point, texCor };
+    // Формируем вершину, которая теперь содержит позицию, текстурные координаты и нормаль
+    Vertex newPoint = { point, texCor, normal };
     points.push_back(newPoint);
   }
 
-  // Processing of each index
+  // Обработка индексов
   for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
     const aiFace& face = mesh->mFaces[i];
     for (unsigned int j = 0; j < face.mNumIndices; j++) {
@@ -477,7 +472,7 @@ MeshWithTexture MeshCreator::ProcessMesh(
     }
   }
 
-  // Material processing: important to include the texture
+  // Материал и текстура
   aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
   aiString path;
   if (material->GetTextureCount(aiTextureType_DIFFUSE) > 0) {
@@ -495,6 +490,7 @@ MeshWithTexture MeshCreator::ProcessMesh(
   result.texturePath = texturePath;
   return result;
 }
+
 
 
 // --- Load Model From File --- //
