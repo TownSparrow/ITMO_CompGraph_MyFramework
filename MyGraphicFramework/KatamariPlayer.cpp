@@ -159,7 +159,7 @@ void KatamariPlayer::CheckCollision() {
 			// Rotation calculate
 			Quaternion rotationInverted;
 			rotation.Inverse(rotationInverted);
-			Quaternion localRotation = rotationInverted * object->rotation;
+			Quaternion localRotation = object->rotation* rotationInverted;
 			object->rotation = localRotation;
 
 			// Position calculate
