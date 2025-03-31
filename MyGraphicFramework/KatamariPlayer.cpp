@@ -122,7 +122,7 @@ KatamariPlayer::KatamariPlayer(Game* gameInput) {
 
 	katamariMesh = new TriangleWithTextureComponent(game);
 	std::vector<MeshWithTexture> ballSphere = MeshCreator::GetInstance()->MeshFromFile("./Models/Katamari/katamari_ball.obj");
-	katamariMesh->Initialize(L"./Shaders/TextureModifiedShader.hlsl", ballSphere[0].points, ballSphere[0].indexes, strides, offsets, L"./Models/Katamari/katamari_texture02.jpg", material);
+	katamariMesh->Initialize(L"./Shaders/TextureModifiedShader.hlsl", ballSphere[0].points, ballSphere[0].indexes, strides, offsets, L"./Models/Katamari/katamari_texture02.jpg", material, false);
 	game->components.push_back(katamariMesh);
 
 	position = Vector3(0.0f, -radius, 0.0f);

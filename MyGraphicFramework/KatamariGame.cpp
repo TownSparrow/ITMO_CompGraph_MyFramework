@@ -14,12 +14,13 @@ void KatamariGame::Initialize() {
 
 	//SpawnRandomObjects();
   SpawnGround();
+
+  player = new KatamariPlayer(game);
+	mainOrbitalCamera = player->GetCamera();
+
   SpawnLittleObjectsGroup();
   SpawnMediumObjectsGroup();
   SpawnBigObjectsGroup();
-
-	player = new KatamariPlayer(game);
-	mainOrbitalCamera = player->GetCamera();
 
   // Lighting
   // Directional Light
@@ -68,7 +69,7 @@ void KatamariGame::SpawnGround() {
 
   TriangleWithTextureComponent* roadTriangleComponent = new TriangleWithTextureComponent(game);
   std::vector<MeshWithTexture> roadMesh = MeshCreator::GetInstance()->MeshFromFile("./Models/RoadPlane/RoadPlane.obj");
-  roadTriangleComponent->Initialize(L"./Shaders/TextureModifiedShader.hlsl", roadMesh[0].points, roadMesh[0].indexes, strides, offsets, roadMesh[0].texturePath, material);
+  roadTriangleComponent->Initialize(L"./Shaders/TextureModifiedShader.hlsl", roadMesh[0].points, roadMesh[0].indexes, strides, offsets, roadMesh[0].texturePath, material, false);
   game->components.push_back(roadTriangleComponent);
 }
 
@@ -97,7 +98,8 @@ void KatamariGame::SpawnLittleObjectsGroup() {
     rightUpMapMinCorner,
     leftDownMapMaxCorner,
     rightUpMapMaxCorner,
-    objectsAmount
+    objectsAmount,
+    false
   );
 }
 
@@ -126,7 +128,8 @@ void KatamariGame::SpawnMediumObjectsGroup() {
     rightUpMapMinCorner,
     leftDownMapMaxCorner,
     rightUpMapMaxCorner,
-    objectsAmount
+    objectsAmount,
+    false
   );
 }
 
@@ -138,11 +141,11 @@ void KatamariGame::SpawnBigObjectsGroup() {
   models.push_back("./Models/Coca-Cola/Coca-Cola.obj");
   //models.push_back("./Models/BigRat/BigRat.obj");
 
-  float sizeMin = 50;
+  float sizeMin = 5;
   Vector3 leftDownMapMinCorner = Vector3(-sizeMin, 0, -sizeMin);
   Vector3 rightUpMapMinCorner = Vector3(sizeMin, 0, sizeMin);
 
-  float sizeMax = 100;
+  float sizeMax = 10;
   Vector3 leftDownMapMaxCorner = Vector3(-sizeMax, 0, -sizeMax);
   Vector3 rightUpMapMaxCorner = Vector3(sizeMax, 0, sizeMax);
 
@@ -154,7 +157,8 @@ void KatamariGame::SpawnBigObjectsGroup() {
     rightUpMapMinCorner,
     leftDownMapMaxCorner,
     rightUpMapMaxCorner,
-    objectsAmount
+    objectsAmount,
+    true
   );
 }
 
@@ -251,11 +255,14 @@ void KatamariGame::SpawnRandomObjects(
   Vector3 rightDownMaxCorner,
   Vector3 leftDownMinCorner,
   Vector3 rightDownMinCorner,
-  int objectsAmount
+  int objectsAmount,
+  bool isTransparentGot
 ) {
   // random values generator
   random_device rd;
   mt19937 gen(rd());
+
+  bool isTransparent = isTransparentGot;
 
   // Calculate zone of spawn
   Vector3 minCorner(
@@ -334,7 +341,7 @@ void KatamariGame::SpawnRandomObjects(
         Vector4(0.2f, 0.2f, 0.2f, 0.2f),
         Vector4(0.55f, 0.55f, 0.55f, 1.00f)
       };
-      modelPart->Initialize(L"./Shaders/TextureModifiedShader.hlsl", mesh.points, mesh.indexes, strides, offsets, mesh.texturePath, material);
+      modelPart->Initialize(L"./Shaders/TextureModifiedShader.hlsl", mesh.points, mesh.indexes, strides, offsets, mesh.texturePath, material, isTransparent);
       modelPart->transforms.rotate = rotationMatrix;
       modelPart->transforms.move = Matrix::CreateTranslation(position);
       game->components.push_back(modelPart);
@@ -366,7 +373,7 @@ void KatamariGame::SpawnRandomObjects(
 
 // --- Update --- //
 void KatamariGame::Update() {
-	player->Update();
+  player->Update();
 }
 
 // --- Update Interval --- //

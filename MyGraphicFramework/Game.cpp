@@ -129,14 +129,16 @@ void Game::Initialize(
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
 
 	depthStencilDesc.DepthEnable = TRUE;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	//depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
-	depthStencilDesc.StencilEnable = FALSE;
+	//depthStencilDesc.StencilEnable = FALSE;
 
 	device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
 
-	context->OMSetDepthStencilState(depthStencilState, 1);
+	//context->OMSetDepthStencilState(depthStencilState, 1);
+	context->OMSetDepthStencilState(depthStencilState, 0);
 
 	// --- Init: Set meshes to draw --- //
 	// background circle

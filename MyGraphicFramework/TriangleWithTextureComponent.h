@@ -33,8 +33,14 @@ private:
   ID3DBlob* pixelByteCode;
   ID3D11Buffer* indexBuffer;
   ID3D11RasterizerState* rastState;
+  ID3D11RasterizerState* transparentRasterState;
   ID3D11Buffer* constBuffer;
   ID3D11Buffer* lightBuffer;
+
+  bool isTransparent;
+  ID3D11BlendState* blendState;
+  ID3D11DepthStencilState* transparentDepthState;
+  ID3D11DepthStencilState* normalDepthState;
 
   std::vector<UINT> strides;
   std::vector<UINT> offsets;
@@ -80,6 +86,9 @@ public:
     //bool is2DInput,
     std::wstring texturePath,
     Material* materialInput
+    // Check is transparent
+    ,
+    bool isTransparent
   );
 
   void Draw();

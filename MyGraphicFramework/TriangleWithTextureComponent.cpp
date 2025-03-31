@@ -12,11 +12,13 @@ void TriangleWithTextureComponent::Initialize(
   std::vector<UINT> stridesInput,
   std::vector<UINT> offsetsInput,
   std::wstring texturePath,
-  Material* materialInput
+  Material* materialInput,
+  bool isTransparentGot
 ) {
 
   points = pointsInput;
   indexes = indexesInput;
+  isTransparent = isTransparentGot;
   
   // Check strides and set default values in empty case
   if (stridesInput.empty())
@@ -133,12 +135,28 @@ void TriangleWithTextureComponent::Initialize(
   res = game->device->CreateBuffer(&indexBufDesc, &indexData, &indexBuffer);
 
   // Rasterizer
+  // For non-transparent
   CD3D11_RASTERIZER_DESC rastDesc = {};
   rastDesc.CullMode = D3D11_CULL_NONE;
   rastDesc.FillMode = D3D11_FILL_SOLID;
   res = game->device->CreateRasterizerState(&rastDesc, &rastState);
+  
+  // For transparent
+  D3D11_RASTERIZER_DESC transparentRasterDesc = {};
+  transparentRasterDesc.FillMode = D3D11_FILL_SOLID;
+  transparentRasterDesc.CullMode = D3D11_CULL_NONE;
+  transparentRasterDesc.DepthClipEnable = true;
+  transparentRasterDesc.DepthBias = -1;
+  transparentRasterDesc.DepthBiasClamp = 0.0f;
+  transparentRasterDesc.SlopeScaledDepthBias = 0.0f;
 
-  // Constant vbuffer
+  transparentRasterState = nullptr;
+  res = game->device->CreateRasterizerState(&transparentRasterDesc, &transparentRasterState);
+  if (FAILED(res)) {
+    std::cout << "Rasterizing transparent objects error" << std::endl;
+  }
+
+  // Constant buffer
   D3D11_BUFFER_DESC constBufferDesc = {};
   constBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
   constBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
@@ -216,25 +234,61 @@ void TriangleWithTextureComponent::Initialize(
   srvDesc.Texture2D.MipLevels = textureDesc.MipLevels;
   res = game->device->CreateShaderResourceView(texture2D, &srvDesc, &textureView);
   texture2D->Release();
+
+  // Depth
+  // For non-transparent
+  D3D11_DEPTH_STENCIL_DESC normalDepthDesc = {};
+  normalDepthDesc.DepthEnable = true;
+  normalDepthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+  normalDepthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+  normalDepthState = nullptr;
+  game->device->CreateDepthStencilState(&normalDepthDesc, &normalDepthState);
+
+  // For transparent
+  D3D11_DEPTH_STENCIL_DESC transparentDepthDesc = {};
+  transparentDepthDesc.DepthEnable = true;
+  transparentDepthDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+  transparentDepthDesc.DepthFunc = D3D11_COMPARISON_LESS;
+  
+  transparentDepthState = nullptr;
+  game->device->CreateDepthStencilState(&transparentDepthDesc, &transparentDepthState);
+
+  // Blend state (for transparent materials)
+  D3D11_BLEND_DESC blendDesc = {};
+  blendDesc.AlphaToCoverageEnable = false;
+  blendDesc.IndependentBlendEnable = false;
+  blendDesc.RenderTarget[0].BlendEnable = TRUE;
+  blendDesc.RenderTarget[0].SrcBlend = D3D11_BLEND_SRC_ALPHA;
+  blendDesc.RenderTarget[0].DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+  blendDesc.RenderTarget[0].BlendOp = D3D11_BLEND_OP_ADD;
+  blendDesc.RenderTarget[0].SrcBlendAlpha = D3D11_BLEND_ONE;
+  blendDesc.RenderTarget[0].DestBlendAlpha = D3D11_BLEND_ZERO;
+  blendDesc.RenderTarget[0].BlendOpAlpha = D3D11_BLEND_OP_ADD;
+  blendDesc.RenderTarget[0].RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE_ALL;
+
+  blendState = nullptr;
+  HRESULT hr = game->device->CreateBlendState(&blendDesc, &blendState);
+  if (FAILED(hr)) {
+    // Error
+    std::cout << "Error of blend state" << std::endl;
+  }
 }
 
-
-//void TriangleWithTextureComponent::Draw() {
-//  game->context->RSSetState(rastState);
-//  game->context->IASetInputLayout(layout);
-//  game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-//  game->context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-//  game->context->VSSetConstantBuffers(0, 1, &constBuffer);
-//  game->context->PSSetShaderResources(0, 1, &textureView);
-//  game->context->PSGetSamplers(0, 1, &samplerState);
-//  game->context->IASetVertexBuffers(0, 1, &vertexBuffer, strides.data(), offsets.data());
-//  game->context->VSSetShader(vertexShader, nullptr, 0);
-//  game->context->PSSetShader(pixelShader, nullptr, 0);
-//  game->context->DrawIndexed(indexes.size(), 0, 0);
-//}
-
 void TriangleWithTextureComponent::Draw() {
-  game->context->RSSetState(rastState);
+  float blendFactor[4] = { 0.f, 0.f, 0.f, 0.f };
+  game->context->OMSetBlendState(blendState, blendFactor, 0xffffffff);
+  
+  // Check is transparent for correct depth state
+  if (isTransparent) {
+    game->context->OMSetDepthStencilState(transparentDepthState, 0);
+    game->context->RSSetState(transparentRasterState);
+  }
+  else {
+    game->context->OMSetDepthStencilState(normalDepthState, 0);
+    game->context->RSSetState(rastState);
+  }
+
+  
   game->context->IASetInputLayout(layout);
   game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
   game->context->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);

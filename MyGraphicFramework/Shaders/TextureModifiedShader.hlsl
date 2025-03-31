@@ -29,7 +29,6 @@ struct PS_IN {
 Texture2D diffuseMap : register(t0);
 SamplerState samp : register(s0);
 
-
 struct Material {
   float4 ambient;
   float4 diffuse;
@@ -53,14 +52,12 @@ struct PointLight
   float4 attentuation;
 };
 
-
 cbuffer LightBuf : register(b1) {
   Material material;
   DirectionalLight dirLight;
   PointLight pntLight;
   float4 spectatorLocation;
 };
-
 
 void DirectionalLightComputing(
     Material material,
@@ -154,4 +151,5 @@ float4 PSMain(PS_IN input) : SV_Target {
   
   float3 finalColor = texColor.rgb * lightingColor;
   return float4(finalColor, texColor.a);
+  //return float4(finalColor, material.diffuse.a);
 }

@@ -67,7 +67,8 @@ public:
 		Vector3 rightDownMaxCorner,
 		Vector3 leftDownMinCorner,
 		Vector3 rightDownMinCorner,
-		int objectsAmount
+		int objectsAmount,
+		bool isTransparent
 	);
 	void Update();
 	void UpdateInterval(float deltaTime);
