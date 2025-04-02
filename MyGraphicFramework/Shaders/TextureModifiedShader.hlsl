@@ -1,3 +1,5 @@
+#define MAX_POINT_LIGHTS 8
+
 struct ConstantData {
   float4 offset;
   float4 color;
@@ -26,9 +28,6 @@ struct PS_IN {
   float3 worldPos : TEXCOORD2;
 };
 
-Texture2D diffuseMap : register(t0);
-SamplerState samp : register(s0);
-
 struct Material {
   float4 ambient;
   float4 diffuse;
@@ -55,7 +54,8 @@ struct PointLight
 cbuffer LightBuf : register(b1) {
   Material material;
   DirectionalLight dirLight;
-  PointLight pntLight;
+  //PointLight pntLight;
+  PointLight pntLights[MAX_POINT_LIGHTS];
   float4 spectatorLocation;
 };
 
@@ -94,14 +94,13 @@ void PointLightComputing(
     out float4 diffuse,
     out float4 specular
 ) {
-  ambient = float4(0, 0, 0, 0);
-  diffuse = float4(0, 0, 0, 0);
-  specular = float4(0, 0, 0, 0);
+  ambient = float4(0.0f, 0.0f, 0.0f, 0.0f);
+  diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
+  specular = float4(0.0f, 0.0f, 0.0f, 0.0f);
     
   float3 vector2light = light.position - position;
   float distance2light = length(vector2light);
-  if (distance2light > light.range)
-    return;
+  if (distance2light > light.range) return;
     
   vector2light /= distance2light;
 
@@ -120,6 +119,8 @@ void PointLightComputing(
   specular *= att;
 }
 
+Texture2D diffuseMap : register(t0);
+SamplerState samp : register(s0);
 
 PS_IN VSMain(VS_IN input) {
   PS_IN output = (PS_IN) 0;
@@ -138,16 +139,24 @@ PS_IN VSMain(VS_IN input) {
 
 float4 PSMain(PS_IN input) : SV_Target {
   float4 texColor = diffuseMap.Sample(samp, input.tex);
-  float3 lightingColor = float3(0, 0, 0);
+  float3 lightingColor = float3(0.0f, 0.0f, 0.0f);
   float3 vector2spectator = normalize(spectatorLocation.xyz - input.worldPos);
     
   float4 ambientDir, diffuseDir, specularDir;
   DirectionalLightComputing(material, dirLight, input.normal, vector2spectator, ambientDir, diffuseDir, specularDir);
-  lightingColor += ambientDir.rgb + diffuseDir.rgb + specularDir.rgb;
-    
-  float4 ambientPoint, diffusePoint, specularPoint;
-  PointLightComputing(material, pntLight, input.worldPos, input.normal, vector2spectator, ambientPoint, diffusePoint, specularPoint);
-  lightingColor += ambientPoint.rgb + diffusePoint.rgb + specularPoint.rgb;
+  //lightingColor += ambientDir.rgb + diffuseDir.rgb + specularDir.rgb;
+  lightingColor += ambientDir.xyz  + diffuseDir.xyz + specularDir.xyz;
+  
+  // For single point light
+  //float4 ambientPoint, diffusePoint, specularPoint;
+  //PointLightComputing(material, pntLight, input.worldPos, input.normal, vector2spectator, ambientPoint, diffusePoint, specularPoint);
+  //lightingColor += ambientPoint.rgb + diffusePoint.rgb + specularPoint.rgb;
+  // For point lights array
+  float4 ambientPt, diffusePt, specularPt;
+  for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
+    PointLightComputing(material, pntLights[i], input.worldPos, input.normal, vector2spectator, ambientPt, diffusePt, specularPt);
+    lightingColor += ambientPt.xyz + diffusePt.xyz + specularPt.xyz;
+  }
   
   float3 finalColor = texColor.rgb * lightingColor;
   return float4(finalColor, texColor.a);

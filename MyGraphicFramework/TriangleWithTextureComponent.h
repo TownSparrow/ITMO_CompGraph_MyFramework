@@ -52,7 +52,7 @@ private:
 
   // Also materials
   Material* material;
-
+   
 public:
   //std::vector<DirectX::XMFLOAT4> points;
   std::vector<Vertex> points;

@@ -188,9 +188,12 @@ void TriangleWithTextureComponent::Initialize(
   lightBufferDesc.MiscFlags = 0;
   lightBufferDesc.StructureByteStride = 0;
   lightBufferDesc.ByteWidth = sizeof(LightData);
+  //UINT lightBufferSize = ((sizeof(LightData) + 15) / 16) * 16;
+  //lightBufferDesc.ByteWidth = lightBufferSize;
   res = game->device->CreateBuffer(&lightBufferDesc, nullptr, &lightBuffer);
 
   lightData = {};
+  //std::cout << "Size of LightData: " << sizeof(LightData) << " bytes" << std::endl;
 
   // Sampler
   D3D11_SAMPLER_DESC samplerDesc = {};
@@ -287,7 +290,6 @@ void TriangleWithTextureComponent::Draw() {
     game->context->OMSetDepthStencilState(normalDepthState, 0);
     game->context->RSSetState(rastState);
   }
-
   
   game->context->IASetInputLayout(layout);
   game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -324,8 +326,20 @@ void TriangleWithTextureComponent::Update() {
   if (game->directionalLight != nullptr)
     lightData.directional = *(game->directionalLight);
   
-  if (game->pointLight != nullptr)
-    lightData.point = *(game->pointLight);
+  //if (game->pointLight != nullptr)
+  //  lightData.point = *(game->pointLight);
+  
+  //if (!game->pointLights.empty()) {
+  //  lightData.numPointLights = static_cast<int>(game->pointLights.size());
+  //  for (int i = 0; i < lightData.numPointLights && i < 8; i++) {
+  //    lightData.pointLights[i] = *(game->pointLights[i]);
+  //  }
+  //}
+  if (game->pointLights.size() != 0) {
+    for (int i = 0; i < game->pointLights.size(); i++) {
+      lightData.pointLights[i] = *(game->pointLights[i]);
+    }
+  }
 
   lightData.material = *material;
   lightData.spectator = Vector4(

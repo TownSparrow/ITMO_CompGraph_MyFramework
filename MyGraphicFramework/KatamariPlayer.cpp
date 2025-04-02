@@ -135,6 +135,90 @@ KatamariPlayer::KatamariPlayer(Game* gameInput) {
 	mainOrbitalCam->Initialize(orbitalCamera, position - orbitalCamera, position);
 	game->activeCamera = mainOrbitalCam;
 	game->components.push_back(mainOrbitalCam);
+
+	lightOrbitAngle = 0.0f;
+	lightOrbitSpeed = DirectX::XM_PI * 0.5f;
+
+	SpawnLights();
+}
+
+// --- Spawn Lights --- //
+void KatamariPlayer::SpawnLights() {
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<> distTheta(0, 2 * DirectX::XM_PI);
+	std::uniform_real_distribution<> distPhi(0, DirectX::XM_PI);
+	std::uniform_real_distribution<> distColor(1.0f, 10.0f);
+
+	// Clear data before spawn
+	orbitalPointLigthsDirections.clear();
+	debugSpheres.clear();
+	game->pointLights.clear();
+
+	for (int i = 0; i < numLights; ++i) {
+		// Calculate direction on the player's mesh
+		float theta = static_cast<float>(distTheta(gen));
+		float phi = static_cast<float>(distPhi(gen));
+		Vector3 dir = Vector3(
+			sin(phi) * cos(theta),
+			sin(phi) * sin(theta),
+			cos(phi)
+		);
+		dir.Normalize();
+		orbitalPointLigthsDirections.push_back(dir);
+
+		// Calculate local position
+		Vector3 localPos = dir * (radius + offsetFromSurface);
+		//Vector3 localPos = Vector3(radius * 0.5f, 0.0f, 0.0f);
+
+		// Generate color
+		float colorR = static_cast<float>(distColor(gen));
+		float colorG = static_cast<float>(distColor(gen));
+		float colorB = static_cast<float>(distColor(gen));
+		float coefAmbient = 0.2;
+		float coefDiffuse = 2.0;
+		float coefSpecular = 2.0;
+		Vector4 lightAmbient = Vector4(colorR * coefAmbient, colorG * coefAmbient, colorB * coefAmbient, 1.0f);
+		Vector4 lightDiffuse = Vector4(colorR * coefDiffuse, colorG * coefDiffuse, colorB * coefDiffuse, 1.0f);
+		Vector4 lightSpecular = Vector4(colorR * coefSpecular, colorG * coefSpecular, colorB * coefSpecular, 1.0f);
+
+		// Create point light
+		PointLight* point = new PointLight{
+				lightAmbient,
+				lightDiffuse,
+				lightSpecular,
+				Vector3(0, 0, 0),
+				1.5f,
+				Vector4(1.5f, 1.2f, 1.0f, 1.0f)
+		};
+		game->pointLights.push_back(point);
+
+		// Create debug sphere
+		Mesh debugSphereMesh = MeshCreator::GetInstance()->Sphere(
+			Vector3(0, 0, 0),
+			0.25f,
+			8,
+			8,
+			false,
+			{ Vector4(1.0f, 1.0f, 0.0f, 1.0f) }
+		);
+		TriangleComponent* debugSphere = new TriangleComponent(game);
+		std::vector<UINT> debugStrides = { 32 };
+		std::vector<UINT> debugOffsets = { 0 };
+		debugSphere->Initialize(
+			L"./Shaders/TaskModifiedShader.hlsl",
+			debugSphereMesh.points,
+			debugSphereMesh.indexes,
+			debugStrides,
+			debugOffsets
+		);
+		debugSphere->transforms.move = Matrix::CreateTranslation(
+			position + Vector3::Transform(localPos, rotation)
+		);
+		debugSphere->transforms.rotate = Matrix::CreateFromQuaternion(rotation);
+		debugSpheres.push_back(debugSphere);
+		game->components.push_back(debugSphere);
+	}
 }
 
 // --- Check collisions --- //
@@ -241,7 +325,33 @@ void KatamariPlayer::UpdatePlayer(Pickable* object) {
 void KatamariPlayer::UpdateInterval(float deltaTime) {
 	Move(deltaTime);
 	CheckCollision();
+	
+	// If want to rotate every interval of time the sphere:
+	RotateLightsWithInterval(deltaTime);
 }
+
+// --- Rotate spawned light with interval --- //
+void KatamariPlayer::RotateLightsWithInterval(float deltaTime) {
+	lightOrbitAngle += deltaTime * lightOrbitSpeed;
+
+	for (int i = 0; i < game->pointLights.size(); i++) {
+		Vector3 baseDir = orbitalPointLigthsDirections[i];
+		Matrix orbitRotation = Matrix::CreateRotationY(lightOrbitAngle);
+		Vector3 rotatedDir = Vector3::Transform(baseDir, orbitRotation);
+		Vector3 localPos = rotatedDir * (radius + offsetFromSurface);
+		Vector3 worldLightPos = position + Vector3::Transform(localPos, rotation);
+
+		game->pointLights[i]->position = worldLightPos;
+		debugSpheres[i]->transforms.move = Matrix::CreateTranslation(worldLightPos);
+		debugSpheres[i]->transforms.rotate = Matrix::CreateFromQuaternion(rotation);
+
+		std::cout << "UpdateInterval: Light #" << i + 1 << " position: ("
+			<< worldLightPos.x << "; "
+			<< worldLightPos.y << "; "
+			<< worldLightPos.z << ")" << std::endl;
+	}
+}
+
 
 // --- Update --- //
 void KatamariPlayer::Update() {
@@ -263,6 +373,21 @@ void KatamariPlayer::Update() {
 			part->transforms.rotate = Matrix::CreateFromQuaternion(object->rotation * rotation);
 		}
 	}
+	
+	//// Update lights (if don't need update every time of interval)
+	//for (int i = 0; i < game->pointLights.size(); i++) {
+	//	Vector3 localPos = orbitalPointLigthsDirections[i] * (radius + offsetFromSurface);
+	//	Vector3 worldLightPos = position + Vector3::Transform(localPos, rotation);
+	//	game->pointLights[i]->position = worldLightPos;
+	//	debugSpheres[i]->transforms.move = Matrix::CreateTranslation(worldLightPos);
+	//	debugSpheres[i]->transforms.rotate = Matrix::CreateFromQuaternion(rotation);
+
+	//	// Debug output
+	//	std::cout << "Light #" << i+1 << " position: ("
+	//		<< worldLightPos.x << "; "
+	//		<< worldLightPos.y << "; "
+	//		<< worldLightPos.z << ")" << std::endl;
+	//}
 }
 
 // --- Get Camera --- //

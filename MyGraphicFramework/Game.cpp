@@ -195,7 +195,8 @@ void Game::Initialize(
 
 	// Init lights
 	directionalLight = nullptr;
-	pointLight = nullptr;
+	//pointLight = nullptr;
+	pointLights = {};
 }
 
 // --- Create Back Buffer --- //
@@ -285,8 +286,15 @@ int Game::Exit() {
 
 	// Release lights
 	if (directionalLight != nullptr) delete directionalLight;
-	if (pointLight != nullptr) delete pointLight;
-	
+	//if (pointLight != nullptr) delete pointLight;
+	//if (!pointLights.empty()) {
+	//	pointLights.clear();
+	//}
+	if (pointLights.size() != 0) {
+		for (int i = 0; i < pointLights.size(); i++) {
+			delete pointLights[i];
+		}
+	}
 
 	// Message for exit
 	std::cout << "That's all, folks!\n";
@@ -343,9 +351,7 @@ void Game::UpdateInterval() {
 	if (isSolarSystem) SolarSystem::GetInstance()->UpdateInterval(deltaTime);
 
 	// Check for Katamari
-	if (isKatamari) {
-		KatamariGame::GetInstance()->UpdateInterval(deltaTime);
-	}
+	if (isKatamari) KatamariGame::GetInstance()->UpdateInterval(deltaTime);
 
 	// Important order of render stages!
 	PrepareFrame();

@@ -17,7 +17,7 @@ void KatamariGame::Initialize() {
 
   player = new KatamariPlayer(game);
 	mainOrbitalCamera = player->GetCamera();
-
+  
   SpawnLittleObjectsGroup();
   SpawnMediumObjectsGroup();
   SpawnBigObjectsGroup();
@@ -26,7 +26,7 @@ void KatamariGame::Initialize() {
   // Directional Light
   directionalLight = new DirectionalLight{
     // Ambient
-    Vector4(0.2f, 0.2f, 0.5f, 1.0f),
+    Vector4(1.0f, 1.0f, 1.0f, 1.0f),
     // Diffuse
     Vector4(0.2f, 0.2f, 0.8f, 1.0f),
     // Specular
@@ -37,21 +37,21 @@ void KatamariGame::Initialize() {
   game->directionalLight = directionalLight;
 
   // Point Light
-  pointLight = new PointLight{
-    // Ambient
-    Vector4(1.5f, 1.5f, 0.3f, 1.0f),
-    // Diffuse
-    Vector4(2.0f, 2.0f, 0.8f, 1.0f),
-    // Specular
-    Vector4(1.5f, 1.5f, 1.2f, 1.0f),
-    // Position
-    Vector3(0.0f, -5.0f, 0.0f),
-    // Radius
-    15.0f,
-    // Attenuation
-    Vector4(0.2f, 0.02f, 0.0f, 1.0f)
-  };
-  game->pointLight = pointLight;
+  //pointLight = new PointLight{
+  //  // Ambient
+  //  Vector4(1.5f, 1.5f, 0.3f, 1.0f),
+  //  // Diffuse
+  //  Vector4(2.0f, 2.0f, 0.8f, 1.0f),
+  //  // Specular
+  //  Vector4(1.5f, 1.5f, 1.2f, 1.0f),
+  //  // Position
+  //  Vector3(0.0f, 1.0f, 0.0f),
+  //  // Radius
+  //  15.0f,
+  //  // Attenuation
+  //  Vector4(0.2f, 0.02f, 0.0f, 1.0f)
+  //};
+  //game->pointLights.push_back(pointLight);
 }
 
 // --- Spawn ground --- //
@@ -149,7 +149,7 @@ void KatamariGame::SpawnBigObjectsGroup() {
   Vector3 leftDownMapMaxCorner = Vector3(-sizeMax, 0, -sizeMax);
   Vector3 rightUpMapMaxCorner = Vector3(sizeMax, 0, sizeMax);
 
-  int objectsAmount = 1;
+  int objectsAmount = 30;
 
   SpawnRandomObjects(
     models,

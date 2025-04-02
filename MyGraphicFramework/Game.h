@@ -78,7 +78,8 @@ public:
 
 	Camera* activeCamera;
 	DirectionalLight* directionalLight;
-	PointLight* pointLight;
+	//PointLight* pointLight;
+	std::vector<PointLight*> pointLights;
 
 	void Initialize(
 		int screenWidthInput,

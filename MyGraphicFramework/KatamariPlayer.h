@@ -56,6 +56,14 @@ private:
 	bool isMovingForward = true;
 
 	std::vector<Pickable*> collectedPickableObjects;
+	std::vector<Vector3> orbitalPointLigthsDirections;
+	std::vector<TriangleComponent*> debugSpheres;
+
+	// For spawning point lights around player
+	int numLights = 8;
+	float offsetFromSurface = 1.0f;
+	float lightOrbitAngle; //= 0.0f;
+	float lightOrbitSpeed; //= DirectX::XM_PI * 0.5f;
 
 	float Inertia(float currentSpeed, bool isMoving);
 	void Move(float deltaTime);
@@ -63,6 +71,8 @@ private:
 public:
 	KatamariPlayer(Game* gameInput);
 
+	void SpawnLights();
+	void RotateLightsWithInterval(float deltaTime);
 	void CheckCollision();
 	void UpdateInterval(float deltaTime);
 	void UpdatePlayer(Pickable* object);

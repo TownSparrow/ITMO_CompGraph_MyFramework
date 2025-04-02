@@ -41,6 +41,7 @@ struct Material {
 struct LightData {
   Material material;
   DirectionalLight directional;
-  PointLight point;
+  //PointLight point;
+  PointLight pointLights[8];
   Vector4 spectator;
 };
