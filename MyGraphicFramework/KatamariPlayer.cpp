@@ -175,8 +175,8 @@ void KatamariPlayer::SpawnLights() {
 		float colorR = static_cast<float>(distColor(gen));
 		float colorG = static_cast<float>(distColor(gen));
 		float colorB = static_cast<float>(distColor(gen));
-		float coefAmbient = 0.2;
-		float coefDiffuse = 2.0;
+		float coefAmbient = 1.0;
+		float coefDiffuse = 1.0;
 		float coefSpecular = 2.0;
 		Vector4 lightAmbient = Vector4(colorR * coefAmbient, colorG * coefAmbient, colorB * coefAmbient, 1.0f);
 		Vector4 lightDiffuse = Vector4(colorR * coefDiffuse, colorG * coefDiffuse, colorB * coefDiffuse, 1.0f);
@@ -188,7 +188,7 @@ void KatamariPlayer::SpawnLights() {
 				lightDiffuse,
 				lightSpecular,
 				Vector3(0, 0, 0),
-				1.5f,
+				5.5f,
 				Vector4(1.5f, 1.2f, 1.0f, 1.0f)
 		};
 		game->pointLights.push_back(point);
@@ -345,10 +345,10 @@ void KatamariPlayer::RotateLightsWithInterval(float deltaTime) {
 		debugSpheres[i]->transforms.move = Matrix::CreateTranslation(worldLightPos);
 		debugSpheres[i]->transforms.rotate = Matrix::CreateFromQuaternion(rotation);
 
-		std::cout << "UpdateInterval: Light #" << i + 1 << " position: ("
-			<< worldLightPos.x << "; "
-			<< worldLightPos.y << "; "
-			<< worldLightPos.z << ")" << std::endl;
+		//std::cout << "UpdateInterval: Light #" << i + 1 << " position: ("
+		//	<< worldLightPos.x << "; "
+		//	<< worldLightPos.y << "; "
+		//	<< worldLightPos.z << ")" << std::endl;
 	}
 }
 
@@ -382,11 +382,11 @@ void KatamariPlayer::Update() {
 	//	debugSpheres[i]->transforms.move = Matrix::CreateTranslation(worldLightPos);
 	//	debugSpheres[i]->transforms.rotate = Matrix::CreateFromQuaternion(rotation);
 
-	//	// Debug output
-	//	std::cout << "Light #" << i+1 << " position: ("
-	//		<< worldLightPos.x << "; "
-	//		<< worldLightPos.y << "; "
-	//		<< worldLightPos.z << ")" << std::endl;
+	////	// Debug output
+	////	std::cout << "Light #" << i+1 << " position: ("
+	////		<< worldLightPos.x << "; "
+	////		<< worldLightPos.y << "; "
+	////		<< worldLightPos.z << ")" << std::endl;
 	//}
 }
 

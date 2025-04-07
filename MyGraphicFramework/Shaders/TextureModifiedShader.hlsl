@@ -117,6 +117,8 @@ void PointLightComputing(
   float att = 1.0 / dot(light.attentuation.xyz, float3(1.0f, distance2light, distance2light * distance2light));
   diffuse *= att;
   specular *= att;
+  
+  specular *= 0.01; // - (distance2light / light.range);
 }
 
 Texture2D diffuseMap : register(t0);

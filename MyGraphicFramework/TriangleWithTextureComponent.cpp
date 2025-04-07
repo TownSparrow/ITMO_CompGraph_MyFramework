@@ -136,12 +136,33 @@ void TriangleWithTextureComponent::Initialize(
 
   // Rasterizer
   // For non-transparent
+  //if (!isTransparent) {
+  //  CD3D11_RASTERIZER_DESC rastDesc = {};
+  //  rastDesc.CullMode = D3D11_CULL_NONE;
+  //  rastDesc.FillMode = D3D11_FILL_SOLID;
+  //  res = game->device->CreateRasterizerState(&rastDesc, &rastState);
+  //}
   CD3D11_RASTERIZER_DESC rastDesc = {};
   rastDesc.CullMode = D3D11_CULL_NONE;
   rastDesc.FillMode = D3D11_FILL_SOLID;
   res = game->device->CreateRasterizerState(&rastDesc, &rastState);
   
   // For transparent
+  //if (isTransparent) {
+  //  D3D11_RASTERIZER_DESC transparentRasterDesc = {};
+  //  transparentRasterDesc.FillMode = D3D11_FILL_SOLID;
+  //  transparentRasterDesc.CullMode = D3D11_CULL_NONE;
+  //  transparentRasterDesc.DepthClipEnable = true;
+  //  transparentRasterDesc.DepthBias = -1;
+  //  transparentRasterDesc.DepthBiasClamp = 0.0f;
+  //  transparentRasterDesc.SlopeScaledDepthBias = 0.0f;
+
+  //  transparentRasterState = nullptr;
+  //  res = game->device->CreateRasterizerState(&transparentRasterDesc, &transparentRasterState);
+  //  if (FAILED(res)) {
+  //    std::cout << "Rasterizing transparent objects error" << std::endl;
+  //  }
+  //}
   D3D11_RASTERIZER_DESC transparentRasterDesc = {};
   transparentRasterDesc.FillMode = D3D11_FILL_SOLID;
   transparentRasterDesc.CullMode = D3D11_CULL_NONE;
@@ -163,7 +184,8 @@ void TriangleWithTextureComponent::Initialize(
   constBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
   constBufferDesc.MiscFlags = 0;
   constBufferDesc.StructureByteStride = 0;
-  UINT bufferSize = ((sizeof(ConstData) + 15) / 16) * 16;
+  //UINT bufferSize = ((sizeof(ConstData) + 15) / 16) * 16;
+  UINT bufferSize = ceil(sizeof(ConstData) / 16) * 16;
   constBufferDesc.ByteWidth = bufferSize;
   res = game->device->CreateBuffer(&constBufferDesc, nullptr, &constBuffer);
 

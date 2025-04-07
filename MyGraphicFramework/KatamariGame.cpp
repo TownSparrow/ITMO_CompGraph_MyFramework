@@ -26,11 +26,11 @@ void KatamariGame::Initialize() {
   // Directional Light
   directionalLight = new DirectionalLight{
     // Ambient
-    Vector4(1.0f, 1.0f, 1.0f, 1.0f),
+    Vector4(4.0f, 4.0f, 4.0f, 4.0f),
     // Diffuse
-    Vector4(0.2f, 0.2f, 0.8f, 1.0f),
+    Vector4(1.2f, 1.2f, 1.8f, 1.0f),
     // Specular
-    Vector4(0.2f, 0.2f, 0.2, 0.2f),
+    Vector4(0.2f, 0.2f, 0.2, 1.2f),
     // Direction
     Vector4(0.0f, 1.0f, 1.0f, 1.0f)
   };
@@ -149,7 +149,7 @@ void KatamariGame::SpawnBigObjectsGroup() {
   Vector3 leftDownMapMaxCorner = Vector3(-sizeMax, 0, -sizeMax);
   Vector3 rightUpMapMaxCorner = Vector3(sizeMax, 0, sizeMax);
 
-  int objectsAmount = 30;
+  int objectsAmount = 1;
 
   SpawnRandomObjects(
     models,
