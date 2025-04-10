@@ -31,6 +31,7 @@
 #include "KatamariGame.h"
 #include "LineComponent.h"
 #include "LightSystem.h"
+#include "ShadowMap.h"
 
 #include <unordered_set>
 #include "Keys.h"
@@ -41,10 +42,13 @@ class Game {
 private:
 	Game() {};
 	static Game* instance;
+	
+	int SHADOW_MAP_SIZE = 2048;
 
 public:
 	DisplayWin32* window;
 	std::vector<GameComponent*> components;
+	std::vector<TriangleWithTextureComponent*> meshes;
 	InputDevice* inputDevice;
 	MSG msg = {};
 	bool isExitRequested = false;
@@ -81,16 +85,24 @@ public:
 	//PointLight* pointLight;
 	std::vector<PointLight*> pointLights;
 
+	// Shadows
+	Matrix lightView;
+	Matrix lightProjection;
+	ShadowMapClass* dirLightShadows;
+
 	void Initialize(
 		int screenWidthInput,
 		int screenHeightInput,
 		LPCWSTR shaderPath
 	);
 	void CreateBackBuffer();
+	void CreateDepthBuffer();
 	void Draw();
 	void Update();
 	void EndFrame();
 	int Exit();
+	void UpdateLight();
+	void RenderShadowMap();
 	void PrepareFrame();
 	void UpdateInterval();
 	void MessageHandler();

@@ -26,13 +26,14 @@ void KatamariGame::Initialize() {
   // Directional Light
   directionalLight = new DirectionalLight{
     // Ambient
-    Vector4(4.0f, 4.0f, 4.0f, 4.0f),
+    Vector4(1.0f, 1.0f, 1.0f, 1.0f),
     // Diffuse
-    Vector4(1.2f, 1.2f, 1.8f, 1.0f),
+    Vector4(1.8f, 1.8f, 1.8f, 1.0f),
     // Specular
-    Vector4(0.2f, 0.2f, 0.2, 1.2f),
+    Vector4(0.5f, 0.5f, 0.5, 1.0f),
     // Direction
-    Vector4(0.0f, 1.0f, 1.0f, 1.0f)
+    //Vector4(0.0f, 1.0f, 0.5f, 1.0f)
+    Vector4(0.0f, -0.5f, 0.5f, 1.0f)
   };
   game->directionalLight = directionalLight;
 
@@ -70,7 +71,9 @@ void KatamariGame::SpawnGround() {
   TriangleWithTextureComponent* roadTriangleComponent = new TriangleWithTextureComponent(game);
   std::vector<MeshWithTexture> roadMesh = MeshCreator::GetInstance()->MeshFromFile("./Models/RoadPlane/RoadPlane.obj");
   roadTriangleComponent->Initialize(L"./Shaders/TextureModifiedShader.hlsl", roadMesh[0].points, roadMesh[0].indexes, strides, offsets, roadMesh[0].texturePath, material, false);
+  //roadTriangleComponent->transforms.rotate = Matrix::CreateRotationX(DirectX::XM_PI);
   game->components.push_back(roadTriangleComponent);
+  game->meshes.push_back(roadTriangleComponent);
 }
 
 // --- Spawn group of little objects --- //
@@ -149,7 +152,7 @@ void KatamariGame::SpawnBigObjectsGroup() {
   Vector3 leftDownMapMaxCorner = Vector3(-sizeMax, 0, -sizeMax);
   Vector3 rightUpMapMaxCorner = Vector3(sizeMax, 0, sizeMax);
 
-  int objectsAmount = 1;
+  int objectsAmount = 0;
 
   SpawnRandomObjects(
     models,
@@ -337,14 +340,15 @@ void KatamariGame::SpawnRandomObjects(
     for (MeshWithTexture mesh : meshes) {
       TriangleWithTextureComponent* modelPart = new TriangleWithTextureComponent(game);
       Material* material = new Material{
-        Vector4(0.2f, 0.2f, 0.2f, 0.2f),
-        Vector4(0.2f, 0.2f, 0.2f, 0.2f),
-        Vector4(0.55f, 0.55f, 0.55f, 1.00f)
+        Vector4(0.23f, 0.23f, 0.23f, 1.00f),
+        Vector4(0.28f, 0.28f, 0.28f, 1.00f),
+        Vector4(0.77f, 0.77f, 0.77f, 5.9f)
       };
       modelPart->Initialize(L"./Shaders/TextureModifiedShader.hlsl", mesh.points, mesh.indexes, strides, offsets, mesh.texturePath, material, isTransparent);
       modelPart->transforms.rotate = rotationMatrix;
       modelPart->transforms.move = Matrix::CreateTranslation(position);
       game->components.push_back(modelPart);
+      game->meshes.push_back(modelPart);
       modelParts.push_back(modelPart);
     }
 

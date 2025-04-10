@@ -44,4 +44,5 @@ struct LightData {
   //PointLight point;
   PointLight pointLights[8];
   Vector4 spectator;
+  Matrix lightSpace;
 };

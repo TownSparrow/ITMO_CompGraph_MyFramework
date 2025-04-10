@@ -81,7 +81,25 @@ void Game::Initialize(
 	res = device->CreateRenderTargetView(backBuffer, nullptr, &renderView);
 
 	// --- Init: Create Depth Buffer --- //
-	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
+	CreateDepthBuffer();
+	
+	// Adding Line Net
+	//InitLineNet();
+
+	// Init lights
+	directionalLight = nullptr;
+	//pointLight = nullptr;
+	pointLights = {};
+}
+
+// --- Create Back Buffer --- //
+void Game::CreateBackBuffer() {
+	auto res = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+}
+
+// --- Create Depth Buffer --- //
+void Game::CreateDepthBuffer() {
+	/*D3D11_TEXTURE2D_DESC depthBufferDesc = {};
 	depthBufferDesc.Width = screenWidth;
 	depthBufferDesc.Height = screenHeight;
 	depthBufferDesc.MipLevels = 1;
@@ -91,7 +109,6 @@ void Game::Initialize(
 	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 
-	depthStencilBuffer = nullptr;
 	device->CreateTexture2D(&depthBufferDesc, nullptr, &depthStencilBuffer);
 
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
@@ -104,104 +121,55 @@ void Game::Initialize(
 
 	ID3D11DepthStencilState* depthStencilState;
 
-	//if (isPong) {
-	//	D3D11_DEPTH_STENCIL_DESC depthDisabledDesc = {};
-
-	//	depthDisabledDesc.DepthEnable = FALSE;
-	//	depthDisabledDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
-
-	//	depthDisabledDesc.StencilEnable = FALSE;
-
-	//	device->CreateDepthStencilState(&depthDisabledDesc, &depthStencilState);
-	//	std::cout << "dfgdfg";
-	//}
-	//else {
-	//	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
-
-	//	depthStencilDesc.DepthEnable = TRUE;
-	//	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	//	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
-
-	//	depthStencilDesc.StencilEnable = FALSE;
-
-	//	device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
-	//};
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
 
 	depthStencilDesc.DepthEnable = TRUE;
-	//depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
 
-	//depthStencilDesc.StencilEnable = FALSE;
+	depthStencilDesc.StencilEnable = FALSE;
 
 	device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
 
-	//context->OMSetDepthStencilState(depthStencilState, 1);
+	context->OMSetDepthStencilState(depthStencilState, 1);*/
+
+	D3D11_TEXTURE2D_DESC depthBufferDesc = {};
+	depthBufferDesc.Width = screenWidth;
+	depthBufferDesc.Height = screenHeight;
+	depthBufferDesc.MipLevels = 1;
+	depthBufferDesc.ArraySize = 1;
+	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthBufferDesc.SampleDesc.Count = 1;
+	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilBuffer = nullptr;
+	device->CreateTexture2D(&depthBufferDesc, nullptr, &depthStencilBuffer);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
+	depthStencilViewDesc.Format = depthBufferDesc.Format;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.Texture2D.MipSlice = 0;
+	device->CreateDepthStencilView(depthStencilBuffer, &depthStencilViewDesc, &depthStencilView);
+	context->OMSetRenderTargets(1, &renderView, depthStencilView);
+
+	ID3D11DepthStencilState* depthStencilState;
+	D3D11_DEPTH_STENCIL_DESC depthStencilDesc = {};
+	depthStencilDesc.DepthEnable = TRUE;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	device->CreateDepthStencilState(&depthStencilDesc, &depthStencilState);
 	context->OMSetDepthStencilState(depthStencilState, 0);
-
-	// --- Init: Set meshes to draw --- //
-	// background circle
-	//std::vector<UINT> stridesCircle = { 32 };
-	//std::vector<UINT> offsetsCircle = { 0 };
-	//TriangleComponent* circle = new TriangleComponent(Game::GetInstance());
-	//Mesh circleMeshBackground = MeshCreator::GetInstance()->Circle(
-	//	DirectX::XMFLOAT2(0.0f, 0.0f),
-	//	0.5f,
-	//	32,
-	//	false,
-	//	{ DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) }
-	//);
-	//circle->Initialize(shaderPath, circleMeshBackground.points, circleMeshBackground.indexes, stridesCircle, offsetsCircle);
-	//Game::GetInstance()->components.push_back(circle);
-
-	// --- Init: Set object mesh to draw --- //
-	//random_device rd;
-	//mt19937 gen(rd());
-
-	////uniform_real_distribution<> distX(ldMapCorner.x, ruMapCorner.x);
-	////uniform_real_distribution<> distZ(ldMapCorner.z, ruMapCorner.z);
-	////uniform_real_distribution<> rotY(0, DirectX::XM_2PI);
-
-	//vector<LPCSTR> models;
-	////models.push_back("./Models/Rose/Red_rose_SF.obj");
-	////models.push_back("./Models/TrashCan/Trash.obj");
-	//models.push_back("./Models/Coca-Cola/Coca-Cola.obj");
-
-	//uniform_int_distribution<> modelDist(0, models.size() - 1);
-
-	//std::vector<UINT> strides = { 24 };
-	//std::vector<UINT> offsets = { 0 };
-
-	//Vector3 position = Vector3(0.0f, 0.0f, 0.0f);
-	////float rotationY = rotY(gen);
-
-	//std::vector<MeshWithTexture> meshes = MeshCreator::GetInstance()->MeshFromFile(models.at(modelDist(gen)));
-	//std::vector<TriangleWithTextureComponent*> modelParts;
-
-	//for (MeshWithTexture mesh : meshes) {
-	//	TriangleWithTextureComponent* modelPart = new TriangleWithTextureComponent(GetInstance());
-	//	modelPart->Initialize(L"./Shaders/TextureModifiedShader.hlsl", mesh.points, mesh.indexes, strides, offsets, mesh.texturePath);
-	//	//modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PIDIV2, 10, DirectX::XM_PIDIV2));
-	//	//modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(DirectX::XM_PI,0,0));
-	//	modelPart->transforms.rotate = Matrix::CreateFromYawPitchRoll(Vector3(0,0,0));
-	//	modelPart->transforms.move = Matrix::CreateTranslation(position);
-	//	GetInstance()->components.push_back(modelPart);
-	//	modelParts.push_back(modelPart);
-	//}
-	
-	// Adding Line Net
-	InitLineNet();
-
-	// Init lights
-	directionalLight = nullptr;
-	//pointLight = nullptr;
-	pointLights = {};
 }
 
-// --- Create Back Buffer --- //
-void Game::CreateBackBuffer() {
-	auto res = swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), (void**)&backBuffer);
+// --- Render Shadow Map --- //
+void Game::RenderShadowMap() {
+	dirLightShadows->SetRenderTarget(context);
+	dirLightShadows->ClearRenderTarget(context, Vector4(0.0f, 0.0f, 0.0f, 1.0f));
+
+	for (TriangleWithTextureComponent* mesh : meshes) {
+		mesh->LightUpdate();
+		mesh->LightRender();
+	}
 }
 
 // --- Draw --- //
@@ -257,6 +225,26 @@ void Game::Update() {
 	for (GameComponent* component : components) {
 		component->Update();
 	}
+}
+
+// --- Update Light --- //
+void Game::UpdateLight() {
+	Vector3 sceneCenter(0.0f, 0.0f, 0.0f);
+	float distance = 50.0f;
+	Vector3 lightCameraPos = sceneCenter - directionalLight->direction * distance;
+	lightView = Matrix::CreateLookAt(lightCameraPos, sceneCenter, Vector3::Up);
+	//lightView = Matrix::CreateLookAt(lightCameraPos, sceneCenter, Vector3(0,-1,0));
+
+	float orthographicWidth = 256;
+	float orthographicHeight = 256;
+	float orthographicNearPlane = 0.1f;
+	float orthographicFarPlane = 100.0f;
+	lightProjection = Matrix::CreateOrthographic(
+		orthographicWidth,
+		orthographicHeight,
+		orthographicNearPlane,
+		orthographicFarPlane
+	);
 }
 
 // --- End Frame --- //
@@ -354,6 +342,8 @@ void Game::UpdateInterval() {
 	if (isKatamari) KatamariGame::GetInstance()->UpdateInterval(deltaTime);
 
 	// Important order of render stages!
+	UpdateLight();
+	RenderShadowMap();
 	PrepareFrame();
 	Update();
 	Draw();
@@ -455,6 +445,7 @@ void Game::InitSolarSystem(LPCWSTR shaderPath) {
 	isSolarSystem = true;
 
 	SolarSystem* solarSystem = SolarSystem::GetInstance();
+	CreateDepthBuffer();
 	solarSystem->Initialize(shaderPath);
 }
 
@@ -462,7 +453,13 @@ void Game::InitKatamari(LPCWSTR shaderPath) {
 	isKatamari = true;
 
 	KatamariGame* katamari = KatamariGame::GetInstance();
+	CreateDepthBuffer();
+	dirLightShadows = new ShadowMapClass();
+	dirLightShadows->Initialize(device, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 	katamari->Initialize();
+	for (TriangleWithTextureComponent* mesh : meshes) {
+		mesh->CreateShadowShaders();
+	}
 }
 
 void Game::InitLineNet() {

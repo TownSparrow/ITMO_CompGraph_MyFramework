@@ -124,6 +124,7 @@ KatamariPlayer::KatamariPlayer(Game* gameInput) {
 	std::vector<MeshWithTexture> ballSphere = MeshCreator::GetInstance()->MeshFromFile("./Models/Katamari/katamari_ball.obj");
 	katamariMesh->Initialize(L"./Shaders/TextureModifiedShader.hlsl", ballSphere[0].points, ballSphere[0].indexes, strides, offsets, L"./Models/Katamari/katamari_texture02.jpg", material, false);
 	game->components.push_back(katamariMesh);
+	game->meshes.push_back(katamariMesh);
 
 	position = Vector3(0.0f, -radius, 0.0f);
 
@@ -155,7 +156,7 @@ void KatamariPlayer::SpawnLights() {
 	debugSpheres.clear();
 	game->pointLights.clear();
 
-	for (int i = 0; i < numLights; ++i) {
+	for (int i = 0; i < 0; ++i) {
 		// Calculate direction on the player's mesh
 		float theta = static_cast<float>(distTheta(gen));
 		float phi = static_cast<float>(distPhi(gen));
@@ -188,7 +189,7 @@ void KatamariPlayer::SpawnLights() {
 				lightDiffuse,
 				lightSpecular,
 				Vector3(0, 0, 0),
-				5.5f,
+				1.5f,
 				Vector4(1.5f, 1.2f, 1.0f, 1.0f)
 		};
 		game->pointLights.push_back(point);

@@ -54,7 +54,8 @@ void OrbitalCamera::CameraRotation(Vector2 mouseInput) {
 
 	float pitchLimit = DirectX::XM_PIDIV2 - 0.01f;
 	if (cameraPitch < -pitchLimit) cameraPitch = -pitchLimit;
-	if (cameraPitch > pitchLimit) cameraPitch = pitchLimit;
+	//if (cameraPitch > pitchLimit) cameraPitch = pitchLimit;
+	if (cameraPitch > 0) cameraPitch = 0;
 
 	Matrix rotationMatrix = Matrix::CreateFromYawPitchRoll(cameraYaw, 0, cameraPitch);
 

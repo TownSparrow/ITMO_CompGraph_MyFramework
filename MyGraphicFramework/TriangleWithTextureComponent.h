@@ -52,6 +52,15 @@ private:
 
   // Also materials
   Material* material;
+
+  // Shadows
+  ID3D11ShaderResourceView* shadowsResource;
+  ID3D11SamplerState* shadowSampler;
+  ID3D11RasterizerState* rastState_shadows;
+  ID3D11VertexShader* vertexShader_shadows;
+  ID3DBlob* vertexByteCode_shadows;
+  ID3D11PixelShader* pixelShader_shadows;
+  ID3DBlob* pixelByteCode_shadows;
    
 public:
   //std::vector<DirectX::XMFLOAT4> points;
@@ -72,6 +81,13 @@ public:
     indexBuffer = nullptr;
     rastState = nullptr;
     constBuffer = nullptr;
+    lightBuffer = nullptr;
+    vertexShader_shadows = nullptr;
+    vertexByteCode_shadows = nullptr;
+    pixelShader_shadows = nullptr;
+    pixelByteCode_shadows = nullptr;
+    shadowsResource = nullptr;
+    shadowSampler = nullptr;
   }
 
   void Initialize(
@@ -91,7 +107,10 @@ public:
     bool isTransparent
   );
 
+  void CreateShadowShaders();
   void Draw();
+  void LightRender();
   void Update();
+  void LightUpdate();
   void DestroyResources();
 };

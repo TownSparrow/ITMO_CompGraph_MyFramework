@@ -57,7 +57,14 @@ cbuffer LightBuf : register(b1) {
   //PointLight pntLight;
   PointLight pntLights[MAX_POINT_LIGHTS];
   float4 spectatorLocation;
+  matrix lightSpace;
 };
+
+Texture2D diffuseMap : register(t0);
+SamplerState samp : register(s0);
+
+Texture2D shadowMap : register(t1);
+SamplerComparisonState shadowSamp : register(s1);
 
 void DirectionalLightComputing(
     Material material,
@@ -114,26 +121,57 @@ void PointLightComputing(
   float specularFactor = pow(max(dot(reflectedLight, vector2spectator), 0.0f), material.specular.w) * angle;
   specular = specularFactor * material.specular * light.specular;
     
-  float att = 1.0 / dot(light.attentuation.xyz, float3(1.0f, distance2light, distance2light * distance2light));
+  float att = 1.0 / dot(light.attentuation.xyz, float3(1.0f, distance2light, pow(distance2light, 2)));
+  att = max(0.0f, 1 - distance2light / light.range);
+  ambient *= att;
   diffuse *= att;
   specular *= att;
   
-  specular *= 0.01; // - (distance2light / light.range);
+  //specular *= 0.01; // - (distance2light / light.range);
 }
 
-Texture2D diffuseMap : register(t0);
-SamplerState samp : register(s0);
+float CalculateShadow(float4 lightSpacePos)
+{
+  float3 projCoords = lightSpacePos.xyz / lightSpacePos.w;
+    
+  projCoords.xy = projCoords.xy * 0.5 + 0.5;
+  projCoords.y = 1.0 - projCoords.y;
+    
+  float currentDepth = projCoords.z;
+    
+  if (currentDepth > 1.0 || projCoords.x < 0 || projCoords.x > 1 ||
+        projCoords.y < 0 || projCoords.y > 1)
+  {
+    return 1.0;
+  }
+    
+  float shadow = 0.0;
+  float2 texelSize = 1.0 / float2(2048, 2048);
+    
+  for (int x = -1; x <= 1; ++x)
+  {
+    for (int y = -1; y <= 1; ++y)
+    {
+      shadow += shadowMap.SampleCmpLevelZero(shadowSamp, (projCoords.xy + float2(x, y) * texelSize), currentDepth);
+    }
+  }
+    
+  shadow /= 9.0;
+    
+  return shadow;
+}
 
 PS_IN VSMain(VS_IN input) {
   PS_IN output = (PS_IN) 0;
   
-  float4 worldPos = mul(input.pos, transformations);
+  float4 worldPos = mul(float4(input.pos.xyzw), transformations);
   output.worldPos = worldPos.xyz;
     
-  float4 clipPos = mul(worldPos, view);
-  clipPos = mul(clipPos, projection);
-  output.pos = clipPos;
-  output.tex = input.tex;
+  worldPos = mul(worldPos, view);
+  worldPos = mul(worldPos, projection);
+  output.pos = worldPos;
+  
+  output.tex = input.tex.xy;
   output.normal = normalize(mul(float4(input.normal, 0.0), transformations).xyz);
     
   return output;
@@ -141,20 +179,26 @@ PS_IN VSMain(VS_IN input) {
 
 float4 PSMain(PS_IN input) : SV_Target {
   float4 texColor = diffuseMap.Sample(samp, input.tex);
-  float3 lightingColor = float3(0.0f, 0.0f, 0.0f);
+  float3 lightingColor = float3(1.0f, 1.0f, 1.0f);
   float3 vector2spectator = normalize(spectatorLocation.xyz - input.worldPos);
     
   float4 ambientDir, diffuseDir, specularDir;
+  float4 ambientPt, diffusePt, specularPt;
+  
+  float4 lightSpacePos = mul(float4(input.worldPos, 1.0f), lightSpace);
+  float shadowFactor = CalculateShadow(lightSpacePos);
+  
   DirectionalLightComputing(material, dirLight, input.normal, vector2spectator, ambientDir, diffuseDir, specularDir);
   //lightingColor += ambientDir.rgb + diffuseDir.rgb + specularDir.rgb;
   lightingColor += ambientDir.xyz  + diffuseDir.xyz + specularDir.xyz;
+  lightingColor *= shadowFactor;
   
   // For single point light
   //float4 ambientPoint, diffusePoint, specularPoint;
   //PointLightComputing(material, pntLight, input.worldPos, input.normal, vector2spectator, ambientPoint, diffusePoint, specularPoint);
   //lightingColor += ambientPoint.rgb + diffusePoint.rgb + specularPoint.rgb;
   // For point lights array
-  float4 ambientPt, diffusePt, specularPt;
+
   for (int i = 0; i < MAX_POINT_LIGHTS; i++) {
     PointLightComputing(material, pntLights[i], input.worldPos, input.normal, vector2spectator, ambientPt, diffusePt, specularPt);
     lightingColor += ambientPt.xyz + diffusePt.xyz + specularPt.xyz;

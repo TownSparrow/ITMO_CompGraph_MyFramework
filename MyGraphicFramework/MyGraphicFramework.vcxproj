@@ -157,6 +157,7 @@
     <ClInclude Include="OrbitalCamera.h" />
     <ClInclude Include="PlayerControlComponent.h" />
     <ClInclude Include="PongGame.h" />
+    <ClInclude Include="ShadowMap.h" />
     <ClInclude Include="SolarSystem.h" />
     <ClInclude Include="TriangleComponent.h" />
     <ClInclude Include="TriangleWithTextureComponent.h" />
@@ -178,6 +179,7 @@
     <ClCompile Include="OrbitalCamera.cpp" />
     <ClCompile Include="PlayerControlComponent.cpp" />
     <ClCompile Include="PongGame.cpp" />
+    <ClCompile Include="ShadowMap.cpp" />
     <ClCompile Include="SolarSystem.cpp" />
     <ClCompile Include="TriangleComponent.cpp" />
     <ClCompile Include="TriangleWithTextureComponent.cpp" />
