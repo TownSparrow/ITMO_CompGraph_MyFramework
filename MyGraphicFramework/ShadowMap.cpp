@@ -1,7 +1,7 @@
 #include "ShadowMap.h"
 
-ShadowMapClass::ShadowMapClass()
-{
+// --- Constructor --- //
+ShadowMap::ShadowMap() {
 	renderTargetTexture = nullptr;
 	depthStencilTexture = nullptr;
 	rtv = nullptr;
@@ -9,8 +9,8 @@ ShadowMapClass::ShadowMapClass()
 	shadowMapDSV = nullptr;
 }
 
-ShadowMapClass::~ShadowMapClass()
-{
+// --- Destructor --- //
+ShadowMap::~ShadowMap() {
 	if (renderTargetTexture) renderTargetTexture->Release();
 	if (depthStencilTexture) depthStencilTexture->Release();
 	if (rtv) rtv->Release();
@@ -18,8 +18,9 @@ ShadowMapClass::~ShadowMapClass()
 	if (shadowMapDSV) shadowMapDSV->Release();
 }
 
-void ShadowMapClass::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, UINT width, UINT height)
-{
+// --- Initialize --- //
+void ShadowMap::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, UINT width, UINT height) {
+	// Viewport
 	viewport.TopLeftX = 0.0f;
 	viewport.TopLeftY = 0.0f;
 	viewport.Width = static_cast<float>(width);
@@ -27,7 +28,7 @@ void ShadowMapClass::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, UIN
 	viewport.MinDepth = 0.0f;
 	viewport.MaxDepth = 1.0f;
 
-	//
+	// Texture
 	D3D11_TEXTURE2D_DESC texDesc;
 	texDesc.Width = width;
 	texDesc.Height = height;
@@ -43,13 +44,14 @@ void ShadowMapClass::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, UIN
 
 	device->CreateTexture2D(&texDesc, 0, &renderTargetTexture);
 
+	// Render Target View
 	D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc;
 	renderTargetViewDesc.Format = texDesc.Format;
 	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
 	device->CreateRenderTargetView(renderTargetTexture, &renderTargetViewDesc, &rtv);
 
-	//
+	// Shader Resource View
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	srvDesc.Format = texDesc.Format;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
@@ -58,7 +60,7 @@ void ShadowMapClass::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, UIN
 
 	device->CreateShaderResourceView(renderTargetTexture, &srvDesc, &shadowMapSRV);
 
-	//
+	// Depth Buffer
 	D3D11_TEXTURE2D_DESC depthBufferDesc;
 	ZeroMemory(&depthBufferDesc, sizeof(depthBufferDesc));
 	depthBufferDesc.Width = width;
@@ -75,6 +77,7 @@ void ShadowMapClass::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, UIN
 
 	device->CreateTexture2D(&depthBufferDesc, 0, &depthStencilTexture);
 
+	// Depth Stencil View
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 	ZeroMemory(&depthStencilViewDesc, sizeof(depthStencilViewDesc));
 	depthStencilViewDesc.Format = depthBufferDesc.Format;
@@ -84,19 +87,16 @@ void ShadowMapClass::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, UIN
 
 }
 
-ID3D11ShaderResourceView* ShadowMapClass::GetShadowMapDSV()
-{
+ID3D11ShaderResourceView* ShadowMap::GetShadowMapDSV() {
 	return shadowMapSRV;
 }
 
-void ShadowMapClass::SetRenderTarget(ID3D11DeviceContext* context)
-{
+void ShadowMap::SetRenderTarget(ID3D11DeviceContext* context) {
 	context->OMSetRenderTargets(1, &rtv, shadowMapDSV);
 	context->RSSetViewports(1, &viewport);
 }
 
-void ShadowMapClass::ClearRenderTarget(ID3D11DeviceContext* context, Vector4 color)
-{
+void ShadowMap::ClearRenderTarget(ID3D11DeviceContext* context, Vector4 color) {
 	float colorAsArray[] = { color.x, color.y, color.z, color.w };
 	context->ClearRenderTargetView(rtv, colorAsArray);
 	context->ClearDepthStencilView(shadowMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0);

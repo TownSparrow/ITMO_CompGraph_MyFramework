@@ -232,11 +232,11 @@ void Game::UpdateLight() {
 	Vector3 sceneCenter(0.0f, 0.0f, 0.0f);
 	float distance = 50.0f;
 	Vector3 lightCameraPos = sceneCenter - directionalLight->direction * distance;
-	lightView = Matrix::CreateLookAt(lightCameraPos, sceneCenter, Vector3::Up);
-	//lightView = Matrix::CreateLookAt(lightCameraPos, sceneCenter, Vector3(0,-1,0));
+	//lightView = Matrix::CreateLookAt(lightCameraPos, sceneCenter, Vector3::Up);
+	lightView = Matrix::CreateLookAt(lightCameraPos, sceneCenter, Vector3(0,-1,0));
 
-	float orthographicWidth = 256;
-	float orthographicHeight = 256;
+	float orthographicWidth = 128;
+	float orthographicHeight = 128;
 	float orthographicNearPlane = 0.1f;
 	float orthographicFarPlane = 100.0f;
 	lightProjection = Matrix::CreateOrthographic(
@@ -342,8 +342,11 @@ void Game::UpdateInterval() {
 	if (isKatamari) KatamariGame::GetInstance()->UpdateInterval(deltaTime);
 
 	// Important order of render stages!
-	UpdateLight();
-	RenderShadowMap();
+	// Shadows work only for Katamari
+	if (isKatamari) {
+		UpdateLight();
+		RenderShadowMap();
+	}
 	PrepareFrame();
 	Update();
 	Draw();
@@ -454,7 +457,7 @@ void Game::InitKatamari(LPCWSTR shaderPath) {
 
 	KatamariGame* katamari = KatamariGame::GetInstance();
 	CreateDepthBuffer();
-	dirLightShadows = new ShadowMapClass();
+	dirLightShadows = new ShadowMap();
 	dirLightShadows->Initialize(device, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE);
 	katamari->Initialize();
 	for (TriangleWithTextureComponent* mesh : meshes) {

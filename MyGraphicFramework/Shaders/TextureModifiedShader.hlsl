@@ -157,8 +157,10 @@ float CalculateShadow(float4 lightSpacePos)
   }
     
   shadow /= 9.0;
-    
-  return shadow;
+  
+  // Default: just shadow
+  //return shadow;
+  return 1-shadow;
 }
 
 PS_IN VSMain(VS_IN input) {
@@ -205,6 +207,7 @@ float4 PSMain(PS_IN input) : SV_Target {
   }
   
   float3 finalColor = texColor.rgb * lightingColor;
+  //return float4(finalColor, texColor.a);
   return float4(finalColor, texColor.a);
   //return float4(finalColor, material.diffuse.a);
 }

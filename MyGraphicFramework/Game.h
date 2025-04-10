@@ -43,7 +43,7 @@ private:
 	Game() {};
 	static Game* instance;
 	
-	int SHADOW_MAP_SIZE = 2048;
+	int SHADOW_MAP_SIZE = 4096*2;
 
 public:
 	DisplayWin32* window;
@@ -88,7 +88,7 @@ public:
 	// Shadows
 	Matrix lightView;
 	Matrix lightProjection;
-	ShadowMapClass* dirLightShadows;
+	ShadowMap* dirLightShadows;
 
 	void Initialize(
 		int screenWidthInput,

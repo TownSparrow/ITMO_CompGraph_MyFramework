@@ -57,9 +57,10 @@ void TriangleWithTextureComponent::CreateShadowShaders() {
   game->device->CreateSamplerState(&shadowSamplerDesc, &shadowSampler);
 
   CD3D11_RASTERIZER_DESC rastDesc = {};
+  //rastDesc.CullMode = D3D11_CULL_BACK;
   rastDesc.CullMode = D3D11_CULL_BACK;
   rastDesc.FillMode = D3D11_FILL_SOLID /*D3D11_FILL_WIREFRAME*/;
-  rastDesc.DepthBias = 2000;
+  rastDesc.DepthBias = 10000;
   rastDesc.SlopeScaledDepthBias = 1.0f;
   rastDesc.DepthBiasClamp = 0.0f;
 
@@ -261,7 +262,7 @@ void TriangleWithTextureComponent::Initialize(
   // Set values for constant buffer
   constData = {};
   constData.transformations = (transforms.scale * transforms.rotate * transforms.move).Transpose();
-  constData.targetColor = Vector4(0.0f, 0.0f, 0.0f, 0.0f);
+  constData.targetColor = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
   constData.time = 0.0f;
   constData.amplitude = 0.1f;
 
@@ -409,6 +410,10 @@ void TriangleWithTextureComponent::Update() {
   constData.view = game->activeCamera->cameraMatrix.view.Transpose();
   constData.projection = game->activeCamera->cameraMatrix.projection.Transpose();
   constData.time = game->totalTime;
+
+  if (shaderFileIndex == 2) {
+    constData.targetColor = Vector4(1.0f, 1.0f, 1.0f, 1.0f);
+  }
 
   if (shaderFileIndex == 1) {
     constData.targetColor = Vector4(1.0f, 1.0f, 1.0f, 1.0f);

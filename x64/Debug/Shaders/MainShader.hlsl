@@ -8,6 +8,8 @@ cbuffer Transform : register(b0) {
   matrix view;
   matrix projection;
   float4 color;
+  float time;
+  float amplitude;
 }
 
 struct VS_IN {
@@ -44,9 +46,5 @@ PS_IN VSMain(VS_IN input) {
 float4 PSMain(PS_IN input) : SV_Target {
   float4 col = input.col;
 
-//#ifdef TEST
-//    if (input.pos.x > 400)
-//        col = float4(0.0f, 1.0f, 0.0f, 1.0f);
-//#endif
   return col;
 }

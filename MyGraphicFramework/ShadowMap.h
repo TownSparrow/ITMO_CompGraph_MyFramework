@@ -19,7 +19,7 @@
 
 using namespace DirectX::SimpleMath;
 
-class ShadowMapClass
+class ShadowMap
 {
 private:
 	UINT width;
@@ -35,8 +35,8 @@ private:
 	D3D11_VIEWPORT viewport;
 
 public:
-	ShadowMapClass();
-	~ShadowMapClass();
+	ShadowMap();
+	~ShadowMap();
 
 	void Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device, UINT width, UINT height);
 
