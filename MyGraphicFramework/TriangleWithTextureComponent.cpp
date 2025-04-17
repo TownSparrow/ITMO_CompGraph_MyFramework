@@ -67,6 +67,98 @@ void TriangleWithTextureComponent::CreateShadowShaders() {
   res = game->device->CreateRasterizerState(&rastDesc, &rastState_shadows);
 }
 
+// --- Create Shadow Volumes (Stencil Shadow) --- //
+void TriangleWithTextureComponent::CreateShadowVolumesShaders() {
+  ID3DBlob* errorVertexCode = nullptr;
+  HRESULT res = D3DCompileFromFile(L"./Shaders/ShadowVolumeShader.hlsl",
+    nullptr /*macros*/,
+    nullptr /*include*/,
+    "VSMain",
+    "vs_5_0",
+    D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+    0,
+    &vertexByteCode_shadowVolumes,
+    &errorVertexCode);
+  game->device->CreateVertexShader(
+    vertexByteCode_shadowVolumes->GetBufferPointer(),
+    vertexByteCode_shadowVolumes->GetBufferSize(),
+    nullptr, &vertexShader_shadowVolumes);
+
+
+  ID3DBlob* errorGeometryCode = nullptr;
+  res = D3DCompileFromFile(L"./Shaders/ShadowVolumeShader.hlsl",
+    nullptr /*macros*/,
+    nullptr /*include*/,
+    "GSMain",
+    "gs_5_0",
+    D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+    0,
+    &geometryByteCode_shadowVolumes,
+    &errorGeometryCode);
+  game->device->CreateGeometryShader(
+    geometryByteCode_shadowVolumes->GetBufferPointer(),
+    geometryByteCode_shadowVolumes->GetBufferSize(),
+    nullptr, &geometryShader_shadowVolumes);
+
+  D3D11_BUFFER_DESC ibDesc = {};
+  ibDesc.ByteWidth = sizeof(UINT) * indeces_with_adjastency.size();
+  ibDesc.Usage = D3D11_USAGE_DEFAULT;
+  ibDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+
+  D3D11_SUBRESOURCE_DATA initData = {};
+  initData.pSysMem = &indeces_with_adjastency[0];
+
+  game->device->CreateBuffer(&ibDesc, &initData, &pAdjacencyIB);
+
+  D3D11_INPUT_ELEMENT_DESC layoutDescVol[] = {
+    { "POSITION", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT,       0, 16, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+    { "NORMAL",   0, DXGI_FORMAT_R32G32B32_FLOAT,    0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+  };
+  game->device->CreateInputLayout(
+    layoutDescVol, ARRAYSIZE(layoutDescVol),
+    vertexByteCode_shadowVolumes->GetBufferPointer(),
+    vertexByteCode_shadowVolumes->GetBufferSize(),
+    &layoutShadowVolumes
+  );
+}
+
+// --- Create Shadow Volumes --- //
+void TriangleWithTextureComponent::CreateShadowVolumes() {
+  game->context->RSSetState(rastState);
+
+  game->context->IASetInputLayout(layout);
+  game->context->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ);
+  game->context->IASetIndexBuffer(pAdjacencyIB, DXGI_FORMAT_R32_UINT, 0);
+
+  game->context->VSSetConstantBuffers(0, 1, &constBuffer);
+  game->context->GSSetConstantBuffers(0, 1, &constBuffer);
+  game->context->GSSetConstantBuffers(1, 1, &lightBuffer);
+
+  game->context->IASetVertexBuffers(0, 1, &vertexBuffer, strides.data(), offsets.data());
+  game->context->VSSetShader(vertexShader_shadowVolumes, nullptr, 0);
+  game->context->GSSetShader(geometryShader_shadowVolumes, nullptr, 0);
+  game->context->PSSetShader(nullptr, nullptr, 0);
+
+  game->context->DrawIndexed(indeces_with_adjastency.size(), 0, 0);
+}
+
+// --- Render Shadow Volumes --- //
+void TriangleWithTextureComponent::RenderShadowVolume() {
+  game->context->IASetInputLayout(layoutShadowVolumes);
+  game->context->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ);
+  game->context->IASetVertexBuffers(0, 1, &vertexBuffer, strides.data(), offsets.data());
+  game->context->IASetIndexBuffer(pAdjacencyIB, DXGI_FORMAT_R32_UINT, 0);
+  game->context->VSSetConstantBuffers(0, 1, &constBuffer);
+  game->context->GSSetConstantBuffers(0, 1, &constBuffer);
+  game->context->GSSetConstantBuffers(1, 1, &lightBuffer);
+  game->context->VSSetShader(vertexShader_shadowVolumes, nullptr, 0);
+  game->context->GSSetShader(geometryShader_shadowVolumes, nullptr, 0);
+  game->context->PSSetShader(nullptr, nullptr, 0);
+  game->context->DrawIndexed((UINT)indeces_with_adjastency.size(), 0, 0);
+  game->context->GSSetShader(nullptr, nullptr, 0);
+}
+
 // --- Init --- //
 void TriangleWithTextureComponent::Initialize(
   LPCWSTR shaderSource,
@@ -361,6 +453,23 @@ void TriangleWithTextureComponent::Initialize(
     // Error
     std::cout << "Error of blend state" << std::endl;
   }
+
+  //FOR SHADOW VOLUMES
+  indeces_with_adjastency = MeshCreator::GetInstance()->GenerateAdjastencyIndices(points, indexes);
+  res = D3DCompileFromFile(L"./Shaders/MeshesWithoutLightsShader.hlsl",
+    nullptr,
+    nullptr,
+    "PSMain",
+    "ps_5_0",
+    D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+    0,
+    &pixelByteCode_withoutLights,
+    &errorPixelCode);
+
+  game->device->CreatePixelShader(
+    pixelByteCode_withoutLights->GetBufferPointer(),
+    pixelByteCode_withoutLights->GetBufferSize(),
+    nullptr, &pixelShader_withoutLights);
 }
 
 void TriangleWithTextureComponent::Draw() {
@@ -384,11 +493,14 @@ void TriangleWithTextureComponent::Draw() {
   game->context->PSSetConstantBuffers(1, 1, &lightBuffer);
   game->context->PSSetShaderResources(0, 1, &textureView);
   game->context->PSSetSamplers(0, 1, &samplerState);
-  shadowsResource = game->dirLightShadows->GetShadowMapDSV();
+  if (!(game->isStencilShadowEnabled)) {
+    shadowsResource = game->dirLightShadows->GetShadowMapDSV();
+  }
   game->context->PSSetShaderResources(1, 1, &shadowsResource);
   game->context->PSSetSamplers(1, 1, &shadowSampler);
   game->context->IASetVertexBuffers(0, 1, &vertexBuffer, strides.data(), offsets.data());
   game->context->VSSetShader(vertexShader, nullptr, 0);
+  game->context->GSSetShader(nullptr, nullptr, 0);
   game->context->PSSetShader(pixelShader, nullptr, 0);
   game->context->DrawIndexed(indexes.size(), 0, 0);
 }

@@ -53,7 +53,7 @@ private:
   // Also materials
   Material* material;
 
-  // Shadows
+  // Shadows (shadow maps)
   ID3D11ShaderResourceView* shadowsResource;
   ID3D11SamplerState* shadowSampler;
   ID3D11RasterizerState* rastState_shadows;
@@ -61,6 +61,19 @@ private:
   ID3DBlob* vertexByteCode_shadows;
   ID3D11PixelShader* pixelShader_shadows;
   ID3DBlob* pixelByteCode_shadows;
+
+  // Shadows (stencil shadow)
+  ID3D11InputLayout* layoutShadowVolumes = nullptr;
+  ID3D11PixelShader* pixelShader_withoutLights;
+  ID3DBlob* pixelByteCode_withoutLights;
+  std::vector<UINT> indeces_with_adjastency;
+  ID3D11Buffer* pAdjacencyIB;
+  ID3D11VertexShader* vertexShader_shadowVolumes;
+  ID3DBlob* vertexByteCode_shadowVolumes;
+  ID3D11GeometryShader* geometryShader_shadowVolumes;
+  ID3DBlob* geometryByteCode_shadowVolumes;
+  ID3D11PixelShader* pixelShader_shadowVolumes;
+  ID3DBlob* pixelByteCode_shadowVolumes;
    
 public:
   //std::vector<DirectX::XMFLOAT4> points;
@@ -88,6 +101,10 @@ public:
     pixelByteCode_shadows = nullptr;
     shadowsResource = nullptr;
     shadowSampler = nullptr;
+    vertexShader_shadowVolumes = nullptr;
+    vertexByteCode_shadowVolumes = nullptr;
+    geometryShader_shadowVolumes = nullptr;
+    geometryByteCode_shadowVolumes = nullptr;
   }
 
   void Initialize(
@@ -108,6 +125,9 @@ public:
   );
 
   void CreateShadowShaders();
+  void CreateShadowVolumesShaders();
+  void CreateShadowVolumes();
+  void RenderShadowVolume();
   void Draw();
   void LightRender();
   void Update();

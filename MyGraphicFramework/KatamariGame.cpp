@@ -33,7 +33,7 @@ void KatamariGame::Initialize() {
     Vector4(0.5f, 0.5f, 0.5, 1.0f),
     // Direction
     //Vector4(0.0f, 1.0f, 0.5f, 1.0f)
-    Vector4(0.0f, -0.5f, 0.5f, 1.0f)
+    Vector4(0.0f, 0.5f, 0.5f, 1.0f)
   };
   game->directionalLight = directionalLight;
 
@@ -79,7 +79,8 @@ void KatamariGame::SpawnGround() {
 // --- Spawn group of little objects --- //
 void KatamariGame::SpawnLittleObjectsGroup() {
   vector<LPCSTR> models;
-  models.push_back("./Models/TrashCan/Trash.obj");
+  //models.push_back("./Models/TrashCan/Trash.obj");
+  //models.push_back("./Models/Cube/Cube.obj");
   models.push_back("./Models/FireHydrant/Fire_Hydrant.obj");
   models.push_back("./Models/TrafficCone/TrafficCone.obj");
   //models.push_back("./Models/Rose/Red_rose_SF.obj");

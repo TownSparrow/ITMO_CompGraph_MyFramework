@@ -524,3 +524,52 @@ std::vector<MeshWithTexture> MeshCreator::MeshFromFile(const std::string& filepa
 
   return meshes;
 }
+
+std::vector<UINT> MeshCreator::GenerateAdjastencyIndices(const std::vector<Vertex>& vertices, const std::vector<int>& indices)
+{
+  using EdgeKey = std::pair<UINT, UINT>;
+
+  auto makeEdge = [](UINT a, UINT b) {
+    return std::make_pair(std::min(a, b), std::max(a, b));
+    };
+
+  std::map<EdgeKey, std::vector<UINT>> edgeMap;
+
+  size_t triCount = indices.size() / 3;
+  for (size_t i = 0; i < triCount; ++i) {
+    UINT i0 = indices[i * 3 + 0];
+    UINT i1 = indices[i * 3 + 1];
+    UINT i2 = indices[i * 3 + 2];
+
+    edgeMap[makeEdge(i0, i1)].push_back(i2);
+    edgeMap[makeEdge(i1, i2)].push_back(i0);
+    edgeMap[makeEdge(i2, i0)].push_back(i1);
+  }
+
+  std::vector<UINT> adjacencyIndices;
+
+  for (size_t i = 0; i < triCount; ++i) {
+    UINT i0 = indices[i * 3 + 0];
+    UINT i1 = indices[i * 3 + 1];
+    UINT i2 = indices[i * 3 + 2];
+
+    auto getOpposite = [&](UINT a, UINT b) {
+      auto key = makeEdge(a, b);
+      const auto& vec = edgeMap[key];
+      if (vec.size() == 2) {
+        return (vec[0] != i0 && vec[0] != i1 && vec[0] != i2) ? vec[0] : vec[1];
+      }
+      return a;
+      };
+
+    UINT adj0 = getOpposite(i1, i2);
+    UINT adj1 = getOpposite(i2, i0);
+    UINT adj2 = getOpposite(i0, i1);
+
+    adjacencyIndices.push_back(i0); adjacencyIndices.push_back(adj0);
+    adjacencyIndices.push_back(i1); adjacencyIndices.push_back(adj1);
+    adjacencyIndices.push_back(i2); adjacencyIndices.push_back(adj2);
+  }
+
+  return adjacencyIndices;
+}

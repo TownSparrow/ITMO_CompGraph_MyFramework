@@ -13,6 +13,9 @@
 
 #include "VertexStruct.h"
 
+#include <unordered_map>
+#include <map>
+
 struct Mesh {
   std::vector<DirectX::XMFLOAT4> points;
   std::vector<int> indexes;
@@ -129,4 +132,6 @@ public:
   // Load mesh from file
   std::vector<MeshWithTexture> MeshFromFile(const std::string& filepath);
 
+  // Adjastency Indices
+  std::vector<UINT> GenerateAdjastencyIndices(const std::vector<Vertex>& vertices, const std::vector<int>& indices);
 };
